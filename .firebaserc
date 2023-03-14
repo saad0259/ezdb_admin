@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "mega-petertan343"
+  },
+  "targets": {
+    "mega-petertan343": {
+      "hosting": {
+        "mega-admin-peter": [
+          "mega-admin-peter"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

@@ -1,0 +1,17 @@
+{
+  "hosting": {
+    "public": "build/web",
+    "target":"mega-admin-peter",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
