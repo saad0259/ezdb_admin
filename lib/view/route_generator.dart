@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../auth/login_view.dart';
 import '../repo/auth_repo.dart';
 import '../state/navigator_state.dart';
 import '../util/snippet.dart';
@@ -33,19 +34,14 @@ class NavigatorViewWidget extends StatelessWidget {
           return const SplashView();
         }
         if (!userSnap.hasData) {
-          // return const LoginView();
-          //!
-          return ChangeNotifierProvider(
-            create: (_) => NavState(),
-            child: const NavigatorView(),
-          );
+          return const LoginView();
         } else {
           return FutureBuilder<bool>(
               future: AuthRepo.instance.isAdmin(),
               builder: (context, snapshot) {
                 if (snapshot.hasData &&
-                    snapshot.data! &&
-                    userSnap.data!.emailVerified) {
+                    snapshot.data != null &&
+                    snapshot.data!) {
                   return ChangeNotifierProvider(
                     create: (_) => NavState(),
                     child: const NavigatorView(),

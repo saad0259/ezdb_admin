@@ -8,11 +8,15 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:universal_html/html.dart';
 
+import '../../model/navigator_model.dart';
 import '../../model/users_model.dart';
+import '../../repo/auth_repo.dart';
+import '../../state/navigator_state.dart';
 import '../../state/user_state.dart';
 import '../../util/sf_grid_helper.dart';
 import '../../util/snippet.dart';
 import '../../view/responsive/extended_media_query.dart';
+import 'user_view.dart';
 
 class UsersListView extends StatefulWidget {
   const UsersListView({Key? key}) : super(key: key);
@@ -30,9 +34,11 @@ class _UsersListViewState extends State<UsersListView> {
 
   Future<void> loadData() async {
     final UserState userState = Provider.of<UserState>(context, listen: false);
-    userState.toggleIsLoading();
-    await userState.loadUsers();
-    userState.toggleIsLoading();
+    if (userState.userList.isEmpty) {
+      userState.toggleIsLoading();
+      await userState.loadUserdata();
+      userState.toggleIsLoading();
+    }
   }
 
   @override
@@ -42,10 +48,8 @@ class _UsersListViewState extends State<UsersListView> {
         ? shimmerTableEffect()
         : Padding(
             padding: const EdgeInsets.all(32.0),
-            //todo: extract filter widgets from rebuildable widget
-
             child: GetSFTableCard(
-              data: userState.userList,
+              data: userState.filteredUsers,
             ),
           );
   }
@@ -90,43 +94,122 @@ class DataSource extends DataGridSource {
         DataGridCell<String>(columnName: '', value: model.name),
         DataGridCell<String>(columnName: '', value: model.phone),
         DataGridCell<String>(columnName: '', value: model.email),
-        DataGridCell<String>(
-            columnName: '', value: model.isVerified ? 'Yes' : 'No'),
-        DataGridCell<String>(columnName: '', value: model.remainingDays),
-        // DataGridCell<Widget>(
-        //     columnName: 'action',
-        //     value: Row(
-        //       children: getActions(context, model),
-        //     )),
       ];
 
   List<Widget> getActions(BuildContext context, UserModel model) => [
-        // Flexible(
-        //   child: IconButton(
-        //     icon: Icon(Icons.receipt_long,
-        //         color: model.isRefunded ? Colors.red : Colors.grey, size: 20),
-        //     tooltip: 'Receipt',
-        //     onPressed: () async {
-        //       await showDialog(
-        //         context: context,
-        //         builder: (_) {
-        //           return TransactionView(model: model);
-        //         },
-        //       );
-        //     },
-        //     padding: EdgeInsets.zero,
-        //   ),
-        // ),
-        // Flexible(
-        //   child: IconButton(
-        //     icon: const Icon(Icons.link, color: Colors.grey, size: 20),
-        //     tooltip: 'Stripe Receipt',
-        //     onPressed: () async {
-        //       await customLaunch(model.receiptUrl);
-        //     },
-        //     padding: EdgeInsets.zero,
-        //   ),
-        // ),
+        Flexible(
+          child: Tooltip(
+            message: model.isBlocked ? 'Unblock User' : 'Block User',
+            child: Switch(
+              value: model.isBlocked,
+              onChanged: (value) async {
+                getStickyLoader(context);
+                try {
+                  await AuthRepo.instance.updateBlockStatus(model.id, value);
+                  snack(context, value ? 'User Blocked' : 'User Unblocked',
+                      info: true);
+                } catch (e) {
+                  log(e.toString());
+                  snack(context, 'Error updating block status');
+                }
+                pop(context);
+              },
+              activeTrackColor: Colors.redAccent,
+              activeColor: Colors.white,
+            ),
+          ),
+        ),
+        Flexible(
+          child: IconButton(
+            icon: const Icon(Icons.upgrade, color: Colors.grey, size: 20),
+            tooltip: 'Upgrade Membership',
+            onPressed: () async {
+              int days = 60;
+              final int remainingDays =
+                  model.memberShipExpiry.difference(DateTime.now()).inDays;
+              await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Upgrade Membership'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        remainingDays < 0
+                            ? 'Membership expired'
+                            : 'Remaining days in expiry: $remainingDays',
+                      ),
+                      SizedBox(height: 16),
+
+                      //dropdown with options 60, 90, 120 days
+                      DropdownButtonFormField(
+                        value: 60,
+                        items: [
+                          DropdownMenuItem(
+                            child: Text('60 days'),
+                            value: 60,
+                          ),
+                          DropdownMenuItem(
+                            child: Text('90 days'),
+                            value: 90,
+                          ),
+                          DropdownMenuItem(
+                            child: Text('120 days'),
+                            value: 120,
+                          ),
+                        ],
+                        onChanged: (value) {
+                          days = value ?? 60;
+                        },
+                      ),
+                      SizedBox(height: 16),
+
+                      ElevatedButton(
+                        onPressed: () async {
+                          getStickyLoader(context);
+                          try {
+                            log('days: $days');
+                            getStickyLoader(context);
+
+                            final DateTime newExpiry = model.memberShipExpiry
+                                .add(Duration(days: days));
+
+                            await AuthRepo.instance.updateMembershipExpiryDate(
+                                model.id, newExpiry);
+
+                            snack(context, 'Membership upgraded', info: true);
+                            pop(context);
+                            pop(context);
+                          } catch (e) {
+                            log(e.toString());
+                            snack(context, 'Error upgrading membership');
+                          }
+                          pop(context);
+                        },
+                        child: Text('Upgrade'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            padding: EdgeInsets.zero,
+          ),
+        ),
+        Flexible(
+          child: IconButton(
+            icon: const Icon(Icons.visibility, color: Colors.grey, size: 20),
+            tooltip: 'View User',
+            onPressed: () async {
+              final NavState navState =
+                  Provider.of<NavState>(context, listen: false);
+              navState.activate(
+                NavigatorModel('Users', UserView(uid: model.id)),
+              );
+            },
+            padding: EdgeInsets.zero,
+          ),
+        ),
       ];
   @override
   Future<void> handleLoadMoreRows() async {
@@ -178,15 +261,15 @@ Future<void> buildPdf(BuildContext context, List<UserModel> dataList) async {
 // Create a PDF grid class to add tables.
     final PdfGrid grid = PdfGrid();
 // Specify the grid column count.
-    grid.columns.add(count: 6);
+    grid.columns.add(count: 4);
 // Add a grid header row.
     final PdfGridRow headerRow = grid.headers.add(1)[0];
     headerRow.cells[0].value = 'Name';
     headerRow.cells[1].value = 'Phone';
     headerRow.cells[2].value = 'Email';
-    headerRow.cells[3].value = 'Verified';
-    headerRow.cells[4].value = 'Days Left';
-    headerRow.cells[5].value = 'Date';
+    // headerRow.cells[3].value = 'Verified';
+    // headerRow.cells[4].value = 'Days Left';
+    headerRow.cells[3].value = 'Date';
 // Set header font.
     headerRow.style.font =
         PdfStandardFont(PdfFontFamily.helvetica, 10, style: PdfFontStyle.bold);
@@ -197,9 +280,9 @@ Future<void> buildPdf(BuildContext context, List<UserModel> dataList) async {
       row.cells[0].value = item.name;
       row.cells[1].value = item.phone;
       row.cells[2].value = item.email;
-      row.cells[3].value = item.isVerified ? 'Yes' : 'No';
-      row.cells[4].value = item.remainingDays;
-      row.cells[5].value =
+      // row.cells[3].value = item.isVerified ? 'Yes' : 'No';
+      // row.cells[4].value = item.remainingDays;
+      row.cells[3].value =
           DateFormat('h:mm a MM dd, yyyy').format(item.createdAt);
     }
 
@@ -261,23 +344,7 @@ class GetSFTableCard extends StatelessWidget {
                         ? 2
                         : 4,
               ),
-              // Row(
-              //   children: [
-              //     Text(
-              //       ('anonymousOnly').tr(),
-              //       style: Theme.of(context).textTheme.subtitle1,
-              //     ),
-              //     Consumer<UserState>(
-              //       builder: (context, transactionState, child) {
-              //         return Checkbox(
-              //             value: transactionState.isAnonymousOnly,
-              //             onChanged: (bool? val) {
-              //               transactionState.setIsAnonymousOnly(val ?? false);
-              //             });
-              //       },
-              //     ),
-              //   ],
-              // ),
+
               const SizedBox(width: 18),
               Row(
                 //
@@ -388,7 +455,7 @@ class GetSFTableCard extends StatelessWidget {
     );
     showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: start ? userState.startDate : userState.endDate,
       firstDate: start ? DateTime(1950) : userState.startDate,
       lastDate: DateTime.now(),
     ).then((pickedDate) {
@@ -427,7 +494,5 @@ class GetSFTableCard extends StatelessWidget {
         getGridColumn(name: 'Name'),
         getGridColumn(name: 'Phone'),
         getGridColumn(name: 'Email'),
-        getGridColumn(name: 'Verified'),
-        getGridColumn(name: 'Days Left'),
       ];
 }

@@ -1,245 +1,202 @@
-// import 'dart:developer';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-// import 'package:flutter/material.dart';
+import '../../model/chart_data_model.dart';
+import '../../model/navigator_model.dart';
+import '../../model/users_model.dart';
+import '../../state/navigator_state.dart';
+import '../../state/theme_state.dart';
+import '../../state/user_state.dart';
+import '../../util/sf_grid_helper.dart';
+import '../dashboard/dashboard_chart_view.dart';
+import 'users_list_view.dart';
 
-// import '../../model/users_model.dart';
-// import '../../util/snippet.dart';
+class UserView extends StatelessWidget {
+  const UserView({Key? key, required this.uid}) : super(key: key);
 
-// class TransactionView extends StatefulWidget {
-//   const TransactionView({Key? key, required this.model}) : super(key: key);
-//   final User model;
+  final String uid;
 
-//   @override
-//   State<TransactionView> createState() => _ShopDialogState();
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(18.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: context.read<ThemeState>().darkTheme
+                        ? Colors.white
+                        : Theme.of(context).primaryColor,
+                  ),
+                  onPressed: () {
+                    final NavState navState =
+                        Provider.of<NavState>(context, listen: false);
+                    navState.activate(
+                      NavigatorModel('Users', const UsersListView()),
+                    );
+                    navState.active.title = 'Users';
+                  },
+                ),
+                const SizedBox(width: 20),
+                Text(
+                  'User Details',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: context.read<ThemeState>().darkTheme
+                        ? Colors.white
+                        : Theme.of(context).primaryColor,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: UserSearchListView(
+                uid: uid,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-// class _ShopDialogState extends State<TransactionView> {
-//   final loadingNotifier = ValueNotifier<bool>(false);
+class UserSearchListView extends StatelessWidget {
+  UserSearchListView({Key? key, required this.uid}) : super(key: key);
 
-//   @override
-//   Widget build(BuildContext context) {
-//     const int animationDuration = 300;
-//     return AlertDialog(
-//       contentPadding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-//       actionsPadding:
-//           const EdgeInsets.symmetric(vertical: 40, horizontal: 120) -
-//               const EdgeInsets.only(top: 40),
-//       actionsAlignment: MainAxisAlignment.center,
-//       content: SingleChildScrollView(
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           crossAxisAlignment: CrossAxisAlignment.stretch,
-//           children: [
-//             Padding(
-//               padding: const EdgeInsets.all(15.0),
-//               child: Column(
-//                 children: [
-//                   Text(
-//                     ('transactionDetails').tr(),
-//                     style: Theme.of(context).textTheme.headline4,
-//                     textAlign: TextAlign.center,
-//                   ),
-//                   const SizedBox(height: 10),
-//                   if (widget.model.isRefunded)
-//                     Text(
-//                       ('refunded').tr(),
-//                       style: Theme.of(context)
-//                           .textTheme
-//                           .bodyText1
-//                           ?.copyWith(color: Colors.red.shade500),
-//                       textAlign: TextAlign.center,
-//                     ),
-//                   const SizedBox(height: 16),
-//                   amountDetailsWidget(),
-//                   ShopDetailsWidget(
-//                       model: widget.model,
-//                       animationDuration: animationDuration),
-//                   CustomerDetailsWidget(
-//                       model: widget.model,
-//                       animationDuration: animationDuration),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//       actions: [
-//         ValueListenableBuilder<bool>(
-//           valueListenable: loadingNotifier,
-//           builder: (c, loading, child) => loading
-//               ? getLoader()
-//               : ElevatedButton.icon(
-//                   onPressed: () => mounted ? pop(context) : null,
-//                   icon: const Icon(Icons.close),
-//                   label: const Text("Close"),
-//                 ),
-//         ),
-//       ],
-//     );
-//   }
+  final String uid;
 
-//   Column amountDetailsWidget() {
-//     return Column(
-//       children: [
-//         Text(
-//           ('amountDetails').tr(),
-//           style: Theme.of(context)
-//               .textTheme
-//               .headline1
-//               ?.copyWith(fontSize: 20, fontWeight: FontWeight.w600),
-//           textAlign: TextAlign.center,
-//         ),
-//         const SizedBox(height: 6),
-//         singleListRow(context, ('transactionType').tr(),
-//             DateFormat('hh:mm a MMM-dd-yyyy').format(widget.model.createdAt)),
-//         singleListRow(context, ('transactionType').tr(),
-//             widget.model.transactionType.getName),
-//         singleListRow(context, ('totalAmount').tr(),
-//             widget.model.amount.toStringAsFixed(2)),
-//         // singleListRow(appLocale.tax, widget.model.tax.toStringAsFixed(2)),
-//         singleListRow(context, ('appFee').tr(),
-//             (widget.model.stripeTax + widget.model.appFee).toStringAsFixed(2)),
-//         // singleListRow(
-//         //     appLocale.stripeFee, widget.model.stripeTax.toStringAsFixed(2)),
-//         singleListRow(context, ('netProfit').tr(),
-//             widget.model.netProfit.toStringAsFixed(2)),
-//         const SizedBox(height: 16),
-//       ],
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    final UserState userState = Provider.of<UserState>(context, listen: false);
+    final UserModel userData = userState.getUserById(uid);
 
-// class ShopDetailsWidget extends StatelessWidget {
-//   const ShopDetailsWidget(
-//       {Key? key, required this.model, required this.animationDuration})
-//       : super(key: key);
+    return Card(
+      elevation: 8,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Container(
+          child: SfDataGrid(
+            source: DataSource(context: context, data: userData.userSearch),
+            columns: <GridColumn>[
+              getGridColumn(name: '#', width: ColumnWidthMode.fitByCellValue),
+              ...getColumns(),
+            ],
+            loadMoreViewBuilder: loadMoreViewBuilderWidget,
+          ),
+        ),
+      ),
+    );
+  }
 
-//   final User model;
-//   final int animationDuration;
-//   Future<ShopReadModel> getShopDetails() async {
-//     return await ShopRepo.instance.getShopById(model.shopId);
-//   }
+  GridColumn getGridColumn({
+    required String name,
+    ColumnWidthMode width = ColumnWidthMode.fill,
+    Alignment align = Alignment.center,
+  }) {
+    return GridColumn(
+      columnWidthMode: width,
+      columnName: name,
+      label: Align(
+        alignment: align,
+        child: Text(
+          name,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return FutureBuilder<ShopReadModel>(
-//         future: getShopDetails(),
-//         builder: (context, snapshot) {
-//           ShopReadModel? shop = snapshot.data;
-//           return AnimatedCrossFade(
-//               firstChild: Column(
-//                 children: [
-//                   Text(
-//                     ('shopDetails').tr(),
-//                     style: Theme.of(context)
-//                         .textTheme
-//                         .headline1
-//                         ?.copyWith(fontSize: 20, fontWeight: FontWeight.w600),
-//                     textAlign: TextAlign.center,
-//                   ),
-//                   const SizedBox(height: 6),
-//                   singleListRow(context, ('name').tr(), shop?.shopName ?? ''),
-//                   singleListRow(context, ('email').tr(), shop?.email ?? ''),
-//                   singleListRow(context, 'Till ${('number').tr()}',
-//                       shop?.tillNumber ?? ''),
-//                   const SizedBox(height: 16),
-//                 ],
-//               ),
-//               secondChild: SizedBox(),
-//               crossFadeState: (snapshot.data != null &&
-//                       snapshot.connectionState == ConnectionState.done &&
-//                       !snapshot.hasError)
-//                   ? CrossFadeState.showFirst
-//                   : CrossFadeState.showSecond,
-//               duration: Duration(milliseconds: animationDuration));
-//         });
-//   }
-// }
+  List<GridColumn> getColumns() => [
+        getGridColumn(name: 'Created At'),
+        getGridColumn(name: 'Search Value'),
+        getGridColumn(name: 'Search Type'),
+      ];
+}
 
-// class CustomerDetailsWidget extends StatelessWidget {
-//   const CustomerDetailsWidget(
-//       {Key? key, required this.model, required this.animationDuration})
-//       : super(key: key);
+class DataSource extends DataGridSource {
+  DataSource({
+    required this.context,
+    required this.data,
+  }) {
+    availableData = data.sublist(0, 21 > data.length ? data.length : 21);
+    buildDataGridRows();
+  }
+  final BuildContext context;
+  final List<UserSearch> data;
+  List<UserSearch> availableData = [];
 
-//   final User model;
-//   final int animationDuration;
+  List<DataGridRow> rowList = [];
+  @override
+  List<DataGridRow> get rows => rowList;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return FutureBuilder<User>(
-//         future: CustomerRepo.instance.getUserRecord(model.customerId),
-//         builder: (context, snapshot) {
-//           if (snapshot.connectionState == ConnectionState.waiting) {
-//             return const SizedBox();
-//           } else if (snapshot.hasError ||
-//               !snapshot.hasData ||
-//               snapshot.data == null) {
-//             log(snapshot.error.toString());
-//             return Center(child: Text(('error').tr()));
-//           }
-//           User? user = snapshot.data;
+  @override
+  DataGridRowAdapter? buildRow(DataGridRow row) {
+    return DataGridRowAdapter(
+      cells: row.getCells().map<Widget>((dataGridCell) {
+        return Align(
+          alignment: dataGridCell.columnName == "action"
+              ? Alignment.centerRight
+              : Alignment.center,
+          child: dataGridCell.value is Widget
+              ? dataGridCell.value
+              : Text(dataGridCell.value.toString()),
+        );
+      }).toList(),
+    );
+  }
 
-//           return AnimatedCrossFade(
-//             firstChild: Column(
-//               children: [
-//                 Text(
-//                   ('customerDetails').tr(),
-//                   style: Theme.of(context)
-//                       .textTheme
-//                       .headline1
-//                       ?.copyWith(fontSize: 20, fontWeight: FontWeight.w600),
-//                   textAlign: TextAlign.center,
-//                 ),
-//                 const SizedBox(height: 6),
-//                 user?.isAnonymous ?? false
-//                     ? Text(
-//                         ('anonymous').tr(),
-//                         style: Theme.of(context).textTheme.headline6?.copyWith(
-//                             fontSize: 15, fontWeight: FontWeight.w600),
-//                         textAlign: TextAlign.center,
-//                       )
-//                     : Column(
-//                         children: [
-//                           singleListRow(
-//                               context, ('name').tr(), user?.name ?? ""),
-//                           singleListRow(
-//                               context, ('email').tr(), user?.email ?? ""),
-//                         ],
-//                       ),
-//               ],
-//             ),
-//             secondChild: SizedBox(),
-//             crossFadeState: (snapshot.data != null &&
-//                     !snapshot.hasError &&
-//                     snapshot.connectionState == ConnectionState.done)
-//                 ? CrossFadeState.showFirst
-//                 : CrossFadeState.showSecond,
-//             duration: Duration(milliseconds: animationDuration),
-//           );
-//         });
-//   }
-// }
+  List<DataGridCell> getCells(UserSearch model) => [
+        DataGridCell<String>(
+            columnName: '',
+            value: DateFormat('MMM-dd-yy hh:mma').format(model.createdAt)),
+        DataGridCell<String>(columnName: '', value: model.searchValue),
+        DataGridCell<String>(columnName: '', value: model.searchType),
+      ];
 
-// Column singleListRow(BuildContext context, String title, String value) {
-//   return Column(
-//     children: [
-//       Padding(
-//         padding: const EdgeInsets.symmetric(vertical: 4.0),
-//         child: Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//           children: [
-//             Text(
-//               title,
-//               style: Theme.of(context).textTheme.subtitle2,
-//             ),
-//             Text(
-//               value,
-//               style: Theme.of(context).textTheme.subtitle2,
-//             ),
-//           ],
-//         ),
-//       ),
-//       const Divider(),
-//     ],
-//   );
-// }
+  @override
+  Future<void> handleLoadMoreRows() async {
+    await Future.delayed(const Duration(seconds: 1));
+
+    _addMoreRows(availableData, 15);
+    buildDataGridRows();
+    notifyListeners();
+  }
+
+  void buildDataGridRows() {
+    int counter = 1;
+    rowList.clear();
+    for (UserSearch model in availableData) {
+      rowList.add(DataGridRow(cells: [
+        DataGridCell<String>(columnName: '', value: (counter++).toString()),
+        ...getCells(model)
+      ]));
+    }
+  }
+
+  void _addMoreRows(List<UserSearch> newData, int count) {
+    final startIndex = newData.isNotEmpty ? newData.length : 0,
+        endIndex = (startIndex + count) >= data.length
+            ? data.length
+            : startIndex + count;
+
+    for (int i = startIndex; i < endIndex; i++) {
+      newData.add(data[i]);
+    }
+  }
+}

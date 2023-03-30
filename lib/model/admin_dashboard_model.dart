@@ -2,7 +2,7 @@ import 'chart_data_model.dart';
 
 class AdminDashboardModel {
   int totalUsers;
-  double totalSearches;
+  int totalSearches;
 
   List<ChartDataModel> usersPerDay;
   List<ChartDataModel> searchesPerDay;

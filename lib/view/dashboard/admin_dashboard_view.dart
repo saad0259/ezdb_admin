@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../model/admin_dashboard_model.dart';
 import '../../model/chart_data_model.dart';
 import '../../model/enum/dashboard_filter_enum.dart';
-import '../../repo/dashboard_repo.dart';
+import '../../state/user_state.dart';
 import '../../util/snippet.dart';
 import '../../view/responsive/extended_media_query.dart';
 import 'dashboard_chart_view.dart';
@@ -17,27 +18,20 @@ class AdminDashboardView extends StatefulWidget {
 }
 
 class _AdminDashboardViewState extends State<AdminDashboardView> {
-  DashboardFilter filter = DashboardFilter.thisWeek;
-  AdminDashboardModel? model;
-
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      loadModel(DashboardFilter.thisWeek);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await loadData();
     });
   }
 
-  void loadModel(DashboardFilter f) async {
-    model = null;
-    filter = f;
-    if (mounted) {
-      setState(() {});
-    }
-    model =
-        await AdminDashboardRepo.instance.subscribeAdminDashboardData(filter);
-    if (mounted) {
-      if (mounted) setState(() {});
+  Future<void> loadData() async {
+    final UserState userState = Provider.of<UserState>(context, listen: false);
+    if (userState.userList.isEmpty) {
+      userState.toggleIsLoading();
+      await userState.loadUserdata();
+      userState.toggleIsLoading();
     }
   }
 
@@ -48,48 +42,66 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Tooltip(
-              message: 'Refresh',
-              child: IconButton(
-                onPressed: () => loadModel(filter),
-                icon: const Icon(Icons.refresh),
-              ),
-            ),
             const SizedBox(width: 16),
-            FilterDropdown(
-              filter: filter,
-              onChange: (f) => loadModel(f),
+            Consumer<UserState>(
+              builder: (context, userState, child) {
+                return FilterDropdown(
+                  filter: userState.currentFilter,
+                  onChange: (f) {
+                    userState.currentFilter = f;
+                  },
+                );
+              },
             ),
           ],
         ),
-        Column(children: [
-          getTopCards(context, model),
-          const SizedBox(height: 16),
-          getCharts(context, model),
-        ]),
+        Consumer<UserState>(
+          builder: (context, userState, child) {
+            return userState.isLoading
+                ? shimmerDashboardEffect()
+                : Column(children: [
+                    getTopCards(context, userState.adminDashboardModel,
+                        userState.currentFilter.getName()),
+                    const SizedBox(height: 16),
+                    getCharts(context, userState.adminDashboardModel),
+                  ]);
+          },
+        ),
       ]),
     );
   }
 
   Widget getCharts(BuildContext context, AdminDashboardModel? model) {
     final media = MediaQuery.of(context);
+    final UserState userState = Provider.of<UserState>(context, listen: false);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: getInRows(rows: media.isLargeLaptop ? 1 : 2, children: [
-        getTransactionsChart('Users Per Day', model?.usersPerDay ?? []),
-        getTransactionsChart('Searches', model?.searchesPerDay ?? []),
+        getTransactionsChart(
+          'Users Per Day',
+          model?.usersPerDay ?? [],
+          userState.currentFilter.getName(),
+        ),
+        getTransactionsChart(
+          'Searches',
+          model?.searchesPerDay ?? [],
+          userState.currentFilter.getName(),
+        ),
       ]),
     );
   }
 
-  Widget getTransactionsChart(String status, List<ChartDataModel> data) =>
+  Widget getTransactionsChart(
+          String status, List<ChartDataModel> data, String filterName) =>
       DashboardChartView(
         title: "$status ",
-        subtitle: "$status based on ${filter.getName()}",
+        subtitle: "$status based on $filterName",
         chartData: data,
       );
 
-  Widget getTopCards(BuildContext context, AdminDashboardModel? model) {
+  Widget getTopCards(
+      BuildContext context, AdminDashboardModel? model, String filterName) {
     final media = MediaQuery.of(context);
     return getInRows(
       rows: media.isLargeLaptop ? 1 : 2,
@@ -98,12 +110,12 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
             iconData: Icons.person,
             data: model?.totalUsers.toString(),
             title: 'Total Users',
-            filter: filter.getName()),
+            filter: filterName),
         getStatCard(context,
             iconData: Icons.search,
             data: model?.totalSearches.toString(),
             title: 'Total Searches',
-            filter: filter.getName()),
+            filter: filterName),
       ],
     );
   }

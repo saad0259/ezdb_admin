@@ -26,14 +26,27 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     if (kDebugMode) {
-      email.text = 'user46.enchap@yopmail.com';
-      password.text = '12345678';
+      email.text = 'admin.mega@yopmail.com';
+      password.text = 'Lahore123@';
     }
     return ResponsiveHeightLayout(
       child: Scaffold(
         body: Stack(
           children: [
-            Container(color: Colors.black.withOpacity(0.7)),
+            //gradient
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.grey.shade200,
+                    Colors.grey.shade400,
+                  ],
+                ),
+              ),
+            ),
+
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal:
@@ -41,25 +54,9 @@ class _LoginViewState extends State<LoginView> {
                 vertical: 48,
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Image.asset(
-                        'assets/images/white-logo.png',
-                        width: rTabletWidth / 6,
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // push(context, const OnboardingView());
-                        },
-                        child: const Text('Sign Up',
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                    ],
-                  ),
                   getLoginCard(context),
                 ],
               ),
