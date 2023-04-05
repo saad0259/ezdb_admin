@@ -340,52 +340,52 @@ Shimmer shimmerDashboardEffect() {
                   height: 125,
                 ),
               )),
-              Expanded(
-                  child: Card(
-                child: SizedBox(
-                  height: 125,
-                ),
-              )),
+              // Expanded(
+              //     child: Card(
+              //   child: SizedBox(
+              //     height: 125,
+              //   ),
+              // )),
             ],
           ),
-          const SizedBox(height: 40),
-          Row(
-            children: const [
-              Expanded(
-                  child: Card(
-                child: SizedBox(
-                  height: 125,
-                ),
-              )),
-              Expanded(
-                  child: Card(
-                child: SizedBox(
-                  height: 125,
-                ),
-              )),
-              Expanded(
-                  child: Card(
-                child: SizedBox(
-                  height: 125,
-                ),
-              )),
-              Expanded(
-                  child: Card(
-                child: SizedBox(
-                  height: 125,
-                ),
-              )),
-            ],
-          ),
+          // const SizedBox(height: 40),
+          // Row(
+          //   children: const [
+          //     Expanded(
+          //         child: Card(
+          //       child: SizedBox(
+          //         height: 125,
+          //       ),
+          //     )),
+          //     Expanded(
+          //         child: Card(
+          //       child: SizedBox(
+          //         height: 125,
+          //       ),
+          //     )),
+          //     Expanded(
+          //         child: Card(
+          //       child: SizedBox(
+          //         height: 125,
+          //       ),
+          //     )),
+          //     Expanded(
+          //         child: Card(
+          //       child: SizedBox(
+          //         height: 125,
+          //       ),
+          //     )),
+          //   ],
+          // ),
           const SizedBox(height: 70),
           Row(
             children: const [
-              Expanded(
-                  child: Card(
-                child: SizedBox(
-                  height: 340,
-                ),
-              )),
+              // Expanded(
+              //     child: Card(
+              //   child: SizedBox(
+              //     height: 340,
+              //   ),
+              // )),
               Expanded(
                   child: Card(
                 child: SizedBox(
@@ -401,6 +401,47 @@ Shimmer shimmerDashboardEffect() {
             ],
           ),
         ],
+      ),
+    ),
+  );
+}
+
+Widget shimmerGridEffect({
+  int count = 5,
+  int crossAxisCount = 2,
+  double height = 125,
+  double width = 125,
+  double crossAxisRatio = 3,
+  double crossAxisSpacing = 10,
+  double mainAxisSpacing = 10,
+  EdgeInsetsGeometry padding = const EdgeInsets.all(12.0),
+}) {
+  return Padding(
+    padding: padding,
+    child: Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40.0) +
+            const EdgeInsets.only(top: 15.0, bottom: 50),
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: crossAxisSpacing,
+            mainAxisSpacing: mainAxisSpacing,
+            childAspectRatio: crossAxisRatio,
+          ),
+          itemCount: count,
+          itemBuilder: (BuildContext context, int index) {
+            return const Card(
+              child: SizedBox(
+                height: 40,
+              ),
+            );
+          },
+        ),
       ),
     ),
   );

@@ -29,9 +29,13 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   Future<void> loadData() async {
     final UserState userState = Provider.of<UserState>(context, listen: false);
     if (userState.userList.isEmpty) {
-      userState.toggleIsLoading();
-      await userState.loadUserdata();
-      userState.toggleIsLoading();
+      userState.isLoading = true;
+      try {
+        await userState.loadUserdata();
+      } catch (e) {
+        snack(context, e.toString());
+      }
+      userState.isLoading = false;
     }
   }
 
@@ -57,14 +61,19 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         ),
         Consumer<UserState>(
           builder: (context, userState, child) {
-            return userState.isLoading
-                ? shimmerDashboardEffect()
-                : Column(children: [
-                    getTopCards(context, userState.adminDashboardModel,
-                        userState.currentFilter.getName()),
-                    const SizedBox(height: 16),
-                    getCharts(context, userState.adminDashboardModel),
-                  ]);
+            return AnimatedCrossFade(
+              duration: const Duration(milliseconds: 500),
+              crossFadeState: userState.isLoading
+                  ? CrossFadeState.showFirst
+                  : CrossFadeState.showSecond,
+              firstChild: shimmerDashboardEffect(),
+              secondChild: Column(children: [
+                getTopCards(context, userState.adminDashboardModel,
+                    userState.currentFilter.getName()),
+                const SizedBox(height: 16),
+                getCharts(context, userState.adminDashboardModel),
+              ]),
+            );
           },
         ),
       ]),

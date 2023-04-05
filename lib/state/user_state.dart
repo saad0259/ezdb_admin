@@ -9,7 +9,13 @@ import '../model/users_model.dart';
 import '../repo/auth_repo.dart';
 
 class UserState extends ChangeNotifier {
-  bool isLoading = false;
+  bool _isLoading = true;
+  bool get isLoading => _isLoading;
+  set isLoading(bool isLoading) {
+    _isLoading = isLoading;
+    notifyListeners();
+  }
+
   String searchQuery = '';
 
   AdminDashboardModel _adminDashboardModel = AdminDashboardModel(
@@ -42,7 +48,6 @@ class UserState extends ChangeNotifier {
   DateTime get startDate => _startDate;
   set startDate(DateTime date) {
     _startDate = date;
-    log('start date: $date');
     notifyListeners();
   }
 
@@ -50,7 +55,6 @@ class UserState extends ChangeNotifier {
   DateTime get endDate => _endDate;
   set endDate(DateTime date) {
     _endDate = date;
-    log('end date: $date');
     notifyListeners();
   }
 
@@ -89,8 +93,6 @@ class UserState extends ChangeNotifier {
                 element.email.toString().contains(searchQuery)))
         .toList();
 
-    log('filtered list: ${filteredList.length}');
-
     if (searchQuery.isNotEmpty) {
       filteredList = filteredList
           .where((element) =>
@@ -111,10 +113,6 @@ class UserState extends ChangeNotifier {
   void setSearchQuery(String query) {
     searchQuery = query;
     notifyListeners();
-  }
-
-  toggleIsLoading() {
-    isLoading = !isLoading;
   }
 
   void setStartDate(DateTime date) {

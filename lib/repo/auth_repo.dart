@@ -34,34 +34,34 @@ class AuthRepo {
     }
   }
 
-  String _getErrorMessage(String code) {
-    String errorMessage;
-    switch (code) {
-      case 'auth/email-already-exists':
-        errorMessage = 'The email is already in use by another account.';
-        break;
+  // String _getErrorMessage(String code) {
+  //   String errorMessage;
+  //   switch (code) {
+  //     case 'auth/email-already-exists':
+  //       errorMessage = 'The email is already in use by another account.';
+  //       break;
 
-      case 'auth/id-token-expired':
-        errorMessage = 'The user token has expired.';
-        break;
+  //     case 'auth/id-token-expired':
+  //       errorMessage = 'The user token has expired.';
+  //       break;
 
-      case 'auth/invalid-api-key':
-        errorMessage = 'The API key is invalid.';
-        break;
+  //     case 'auth/invalid-api-key':
+  //       errorMessage = 'The API key is invalid.';
+  //       break;
 
-      case 'auth/invalid-credential':
-        errorMessage = 'The credential is invalid.';
-        break;
+  //     case 'auth/invalid-credential':
+  //       errorMessage = 'The credential is invalid.';
+  //       break;
 
-      case 'auth/invalid-email':
-        errorMessage = 'The email address is badly formatted.';
-        break;
+  //     case 'auth/invalid-email':
+  //       errorMessage = 'The email address is badly formatted.';
+  //       break;
 
-      default:
-        errorMessage = 'An unknown error occurred.';
-    }
-    return errorMessage;
-  }
+  //     default:
+  //       errorMessage = 'An unknown error occurred.';
+  //   }
+  //   return errorMessage;
+  // }
 
   Future<List<UserModel>> getUsersByFilter(DashboardFilter filter) async {
     final List<UserModel> userList = [];

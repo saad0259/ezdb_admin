@@ -7,6 +7,8 @@ class NavState extends ChangeNotifier {
   static final defaultNav = NavigatorModel(
     'Dashboard',
     const AdminDashboardView(),
+    // 'Settings',
+    // const SettingsView(),
   );
 
   NavigatorModel active = defaultNav;

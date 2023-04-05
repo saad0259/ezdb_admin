@@ -35,9 +35,9 @@ class _UsersListViewState extends State<UsersListView> {
   Future<void> loadData() async {
     final UserState userState = Provider.of<UserState>(context, listen: false);
     if (userState.userList.isEmpty) {
-      userState.toggleIsLoading();
+      userState.isLoading = true;
       await userState.loadUserdata();
-      userState.toggleIsLoading();
+      userState.isLoading = false;
     }
   }
 

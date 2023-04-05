@@ -9,6 +9,7 @@ import '../state/theme_state.dart';
 import '../view/responsive/extended_media_query.dart';
 import '../view/responsive/responsive_layout.dart';
 import 'dashboard/admin_dashboard_view.dart';
+import 'settings/settings_view.dart';
 import 'users/users_list_view.dart';
 
 class NavigatorView extends StatefulWidget {
@@ -119,6 +120,13 @@ class _NavigatorViewState extends State<NavigatorView> {
               icon: Icons.receipt,
               onTap: () => navState.activate(
                 NavigatorModel("Users", const UsersListView()),
+              ),
+            ),
+            NavButton(
+              title: 'Settings',
+              icon: Icons.settings,
+              onTap: () => navState.activate(
+                NavigatorModel('Settings', const SettingsView()),
               ),
             ),
             NavButton(

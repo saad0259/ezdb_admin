@@ -3,14 +3,12 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import '../../model/chart_data_model.dart';
 import '../../model/navigator_model.dart';
 import '../../model/users_model.dart';
 import '../../state/navigator_state.dart';
 import '../../state/theme_state.dart';
 import '../../state/user_state.dart';
 import '../../util/sf_grid_helper.dart';
-import '../dashboard/dashboard_chart_view.dart';
 import 'users_list_view.dart';
 
 class UserView extends StatelessWidget {
