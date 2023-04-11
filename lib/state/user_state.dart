@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/foundation.dart';
 
 import '../model/admin_dashboard_model.dart';
@@ -13,6 +11,13 @@ class UserState extends ChangeNotifier {
   bool get isLoading => _isLoading;
   set isLoading(bool isLoading) {
     _isLoading = isLoading;
+    notifyListeners();
+  }
+
+  DateTime? _selectedDate;
+  DateTime? get selectedDate => _selectedDate;
+  set selectedDate(DateTime? date) {
+    _selectedDate = date;
     notifyListeners();
   }
 

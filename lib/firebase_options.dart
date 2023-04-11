@@ -21,7 +21,10 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for android - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.iOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for ios - '
@@ -50,20 +53,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCgbQZHQ-OSq1lar2QZV9syb84zf213PF4',
-    appId: '1:76249013032:web:52095359e712b54c33ce1d',
-    messagingSenderId: '76249013032',
-    projectId: 'mega-petertan343',
-    authDomain: 'mega-petertan343.firebaseapp.com',
-    storageBucket: 'mega-petertan343.appspot.com',
-    measurementId: 'G-95VMLCSY1S',
-  );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBP0KypRaQPAuwKM8fnaMiJLLmEhqGc_UU',
-    appId: '1:76249013032:android:8ac9e5a946eaa07733ce1d',
-    messagingSenderId: '76249013032',
-    projectId: 'mega-petertan343',
-    storageBucket: 'mega-petertan343.appspot.com',
+    apiKey: 'AIzaSyDzlbsnYJZlITiUH9poONtM1ON9UD0J9VA',
+    appId: '1:181211131869:web:f09851d24be9e9abb65034',
+    messagingSenderId: '181211131869',
+    projectId: 'mega-app-1ea75',
+    authDomain: 'mega-app-1ea75.firebaseapp.com',
+    storageBucket: 'mega-app-1ea75.appspot.com',
+    measurementId: 'G-9D8T0XB6SJ',
   );
 }

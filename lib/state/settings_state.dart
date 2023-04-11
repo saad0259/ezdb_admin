@@ -30,12 +30,17 @@ class SettingsState extends ChangeNotifier {
 
   loadData() async {
     isLoading = true;
-    pricingLink = await SettingsRepo.instance.getLink();
+    try {
+      pricingLink = await SettingsRepo.instance.getLink();
+      // pricingLink = '';
 
-    Stream<List<OfferModel>> offersStream = OfferRepo.instance.watchOffers();
-    offersStream.listen((offers) {
-      this.offers = offers;
-    });
+      Stream<List<OfferModel>> offersStream = OfferRepo.instance.watchOffers();
+      offersStream.listen((offers) {
+        this.offers = offers;
+      });
+    } catch (e) {
+      log(e.toString());
+    }
     isLoading = false;
   }
 }

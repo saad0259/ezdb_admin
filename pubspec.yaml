@@ -28,6 +28,8 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies: 
+  flutter:
+      sdk: flutter
   beamer: ^1.5.3
   cloud_firestore: ^4.4.4
   faker: ^2.1.0

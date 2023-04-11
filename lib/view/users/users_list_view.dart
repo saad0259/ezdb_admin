@@ -124,9 +124,8 @@ class DataSource extends DataGridSource {
             icon: const Icon(Icons.upgrade, color: Colors.grey, size: 20),
             tooltip: 'Upgrade Membership',
             onPressed: () async {
-              int days = 60;
               final int remainingDays =
-                  model.memberShipExpiry.difference(DateTime.now()).inDays;
+                  model.memberShipExpiry.difference(DateTime.now()).inDays + 1;
               await showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
@@ -141,38 +140,48 @@ class DataSource extends DataGridSource {
                       ),
                       SizedBox(height: 16),
 
-                      //dropdown with options 60, 90, 120 days
-                      DropdownButtonFormField(
-                        value: 60,
-                        items: [
-                          DropdownMenuItem(
-                            child: Text('60 days'),
-                            value: 60,
-                          ),
-                          DropdownMenuItem(
-                            child: Text('90 days'),
-                            value: 90,
-                          ),
-                          DropdownMenuItem(
-                            child: Text('120 days'),
-                            value: 120,
-                          ),
-                        ],
-                        onChanged: (value) {
-                          days = value ?? 60;
+                      //button to pick date
+                      Consumer<UserState>(
+                        builder: (context, userState, child) {
+                          return TextButton(
+                            onPressed: () async {
+                              final DateTime? picked = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime.now(),
+                                lastDate:
+                                    DateTime.now().add(Duration(days: 365)),
+                              );
+                              if (picked != null) {
+                                userState.selectedDate = picked;
+                              }
+                            },
+                            child: Text(
+                              userState.selectedDate == null
+                                  ? 'Pick Date'
+                                  : DateFormat('MMM-dd-yy')
+                                      .format(userState.selectedDate!),
+                            ),
+                          );
                         },
                       ),
+
                       SizedBox(height: 16),
 
                       ElevatedButton(
                         onPressed: () async {
-                          getStickyLoader(context);
-                          try {
-                            log('days: $days');
-                            getStickyLoader(context);
+                          final UserState userState =
+                              Provider.of<UserState>(context, listen: false);
 
-                            final DateTime newExpiry = model.memberShipExpiry
-                                .add(Duration(days: days));
+                          final DateTime? newExpiry = userState.selectedDate;
+                          if (newExpiry == null) {
+                            snack(context, 'Please pick a date');
+                            return;
+                          }
+                          getStickyLoader(context);
+
+                          try {
+                            getStickyLoader(context);
 
                             await AuthRepo.instance.updateMembershipExpiryDate(
                                 model.id, newExpiry);
@@ -184,6 +193,8 @@ class DataSource extends DataGridSource {
                             log(e.toString());
                             snack(context, 'Error upgrading membership');
                           }
+                          userState.selectedDate = null;
+
                           pop(context);
                         },
                         child: Text('Upgrade'),

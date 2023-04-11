@@ -1,12 +1,12 @@
 {
   "projects": {
-    "default": "mega-petertan343"
+    "default": "mega-app-1ea75"
   },
   "targets": {
-    "mega-petertan343": {
+    "mega-app-1ea75": {
       "hosting": {
-        "mega-admin-peter": [
-          "mega-admin-peter"
+        "mega-admin-01": [
+          "mega-admin-01"
         ]
       }
     }
