@@ -90,42 +90,24 @@ class DataSource extends DataGridSource {
   List<DataGridCell> getCells(UserModel model) => [
         DataGridCell<String>(
             columnName: '',
-            value: DateFormat('MMM-dd-yy hh:mma').format(model.createdAt)),
-        DataGridCell<String>(columnName: '', value: model.name),
+            value:
+                DateFormat('MMM-dd-yy hh:mma').format(model.memberShipExpiry)),
+        // DataGridCell<String>(columnName: '', value: model.name),
         DataGridCell<String>(columnName: '', value: model.phone),
-        DataGridCell<String>(columnName: '', value: model.email),
+        // DataGridCell<String>(columnName: '', value: model.email),
       ];
 
   List<Widget> getActions(BuildContext context, UserModel model) => [
-        Flexible(
-          child: Tooltip(
-            message: model.isBlocked ? 'Unblock User' : 'Block User',
-            child: Switch(
-              value: model.isBlocked,
-              onChanged: (value) async {
-                getStickyLoader(context);
-                try {
-                  await AuthRepo.instance.updateBlockStatus(model.id, value);
-                  snack(context, value ? 'User Blocked' : 'User Unblocked',
-                      info: true);
-                } catch (e) {
-                  log(e.toString());
-                  snack(context, 'Error updating block status');
-                }
-                pop(context);
-              },
-              activeTrackColor: Colors.redAccent,
-              activeColor: Colors.white,
-            ),
-          ),
-        ),
         Flexible(
           child: IconButton(
             icon: const Icon(Icons.upgrade, color: Colors.grey, size: 20),
             tooltip: 'Upgrade Membership',
             onPressed: () async {
-              final int remainingDays =
-                  model.memberShipExpiry.difference(DateTime.now()).inDays + 1;
+              final int remainingDays = model.memberShipExpiry
+                  .difference(DateTime.parse(
+                    DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                  ))
+                  .inDays;
               await showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
@@ -185,11 +167,16 @@ class DataSource extends DataGridSource {
 
                             await AuthRepo.instance.updateMembershipExpiryDate(
                                 model.id, newExpiry);
+                            userState.isLoading = true;
+                            await userState.loadUserdata();
+                            userState.isLoading = false;
 
                             snack(context, 'Membership upgraded', info: true);
                             pop(context);
                             pop(context);
                           } catch (e) {
+                            pop(context);
+                            pop(context);
                             log(e.toString());
                             snack(context, 'Error upgrading membership');
                           }
@@ -272,15 +259,15 @@ Future<void> buildPdf(BuildContext context, List<UserModel> dataList) async {
 // Create a PDF grid class to add tables.
     final PdfGrid grid = PdfGrid();
 // Specify the grid column count.
-    grid.columns.add(count: 4);
+    grid.columns.add(count: 2);
 // Add a grid header row.
     final PdfGridRow headerRow = grid.headers.add(1)[0];
-    headerRow.cells[0].value = 'Name';
-    headerRow.cells[1].value = 'Phone';
-    headerRow.cells[2].value = 'Email';
+    // headerRow.cells[0].value = 'Name';
+    headerRow.cells[0].value = 'Phone';
+    // headerRow.cells[2].value = 'Email';
     // headerRow.cells[3].value = 'Verified';
     // headerRow.cells[4].value = 'Days Left';
-    headerRow.cells[3].value = 'Date';
+    headerRow.cells[1].value = 'Date';
 // Set header font.
     headerRow.style.font =
         PdfStandardFont(PdfFontFamily.helvetica, 10, style: PdfFontStyle.bold);
@@ -288,13 +275,13 @@ Future<void> buildPdf(BuildContext context, List<UserModel> dataList) async {
 
     for (UserModel item in dataList) {
       final PdfGridRow row = grid.rows.add();
-      row.cells[0].value = item.name;
-      row.cells[1].value = item.phone;
-      row.cells[2].value = item.email;
+      // row.cells[0].value = item.name;
+      row.cells[0].value = item.phone;
+      // row.cells[2].value = item.email;
       // row.cells[3].value = item.isVerified ? 'Yes' : 'No';
       // row.cells[4].value = item.remainingDays;
-      row.cells[3].value =
-          DateFormat('h:mm a MM dd, yyyy').format(item.createdAt);
+      row.cells[1].value =
+          DateFormat('h:mm a MM dd, yyyy').format(item.memberShipExpiry);
     }
 
 // Set grid format.
@@ -501,9 +488,9 @@ class GetSFTableCard extends StatelessWidget {
   }
 
   List<GridColumn> getColumns() => [
-        getGridColumn(name: 'Create At'),
-        getGridColumn(name: 'Name'),
+        getGridColumn(name: 'Expires At'),
+        // getGridColumn(name: 'Name'),
         getGridColumn(name: 'Phone'),
-        getGridColumn(name: 'Email'),
+        // getGridColumn(name: 'Email'),
       ];
 }

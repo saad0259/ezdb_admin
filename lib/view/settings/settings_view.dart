@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/offer_model.dart';
+import '../../repo/auth_repo.dart';
 import '../../repo/offer_repo.dart';
 import '../../repo/settings_repo.dart';
 import '../../state/settings_state.dart';
@@ -25,7 +29,6 @@ class _SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     final SettingsState state = Provider.of<SettingsState>(context);
     return SingleChildScrollView(
       child: Padding(
@@ -64,7 +67,7 @@ class OfferGrid extends StatelessWidget {
               'Offers',
               style: theme.textTheme.headlineSmall,
             ),
-            UpdateLinkButton()
+            ActionButtons()
           ],
         ),
         SizedBox(height: 16),
@@ -153,8 +156,18 @@ class OfferCard extends StatelessWidget {
                                 if (formKey.currentState?.validate() ?? false) {
                                   formKey.currentState?.save();
                                   getStickyLoader(context);
-                                  await OfferRepo.instance.updateOffer(
-                                      offer.uid, newPrice, newDays);
+                                  final OfferModel newOffer = OfferModel(
+                                    id: offer.id,
+                                    name: offer.name,
+                                    price: newPrice,
+                                    days: newDays,
+                                  );
+                                  await OfferRepo.instance
+                                      .updateOffer(newOffer);
+                                  final SettingsState state =
+                                      Provider.of<SettingsState>(context,
+                                          listen: false);
+                                  state.loadData();
                                   snack(context, 'Offer Updated', info: true);
                                 }
                               } catch (e) {
@@ -179,8 +192,8 @@ class OfferCard extends StatelessWidget {
 }
 
 // ignore: must_be_immutable
-class UpdateLinkButton extends StatelessWidget {
-  UpdateLinkButton({
+class ActionButtons extends StatelessWidget {
+  ActionButtons({
     super.key,
   });
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -191,57 +204,97 @@ class UpdateLinkButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final SettingsState state = Provider.of<SettingsState>(context);
 
-    return ElevatedButton(
-      onPressed: () {
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text('Update Contact Us Link'),
-                  content: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          initialValue: state.pricingLink,
-                          validator: mandatoryValidator,
-                          onSaved: (value) => pricingLink = value ?? '',
-                          decoration: InputDecoration(
-                            labelText: 'Link',
-                          ),
+    return Row(
+      children: [
+        ElevatedButton(
+          onPressed: () async {
+            final SettingsState state =
+                Provider.of<SettingsState>(context, listen: false);
+            try {
+              getStickyLoader(context);
+
+              final FilePickerResult? result =
+                  await FilePicker.platform.pickFiles(
+                type: FileType.custom,
+                allowedExtensions: ['xlsx'],
+                allowMultiple: false,
+              );
+              if (result == null) {
+                snack(context, 'No file selected');
+                return;
+              }
+
+              Uint8List file = result.files.first.bytes ?? Uint8List(0);
+
+              
+
+              await AuthRepo.instance.addRecords(file);
+
+              snack(context, 'Records Imported', info: true);
+            } catch (e) {
+              snack(context, 'Error Importing Records');
+              print(e);
+            }
+            pop(context);
+          },
+          child: Text('Import records'),
+        ),
+        const SizedBox(width: 16),
+        ElevatedButton(
+          onPressed: () {
+            showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                      title: Text('Update Contact Us Link'),
+                      content: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              initialValue: state.pricingLink,
+                              validator: mandatoryValidator,
+                              onSaved: (value) => pricingLink = value ?? '',
+                              decoration: InputDecoration(
+                                labelText: 'Link',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => pop(context),
+                          child: Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            final SettingsState state =
+                                Provider.of<SettingsState>(context,
+                                    listen: false);
+                            try {
+                              getStickyLoader(context);
+                              if (formKey.currentState?.validate() ?? false) {
+                                formKey.currentState?.save();
+                                await SettingsRepo.instance
+                                    .updateLink(pricingLink);
+                                state.pricingLink = pricingLink;
+                                snack(context, 'Link Updated', info: true);
+                                pop(context);
+                              }
+                            } catch (e) {
+                              snack(context, e.toString());
+                            }
+                            pop(context);
+                          },
+                          child: Text('Update'),
                         ),
                       ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => pop(context),
-                      child: Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        final SettingsState state =
-                            Provider.of<SettingsState>(context, listen: false);
-                        try {
-                          getStickyLoader(context);
-                          if (formKey.currentState?.validate() ?? false) {
-                            formKey.currentState?.save();
-                            await SettingsRepo.instance.updateLink(pricingLink);
-                            state.pricingLink = pricingLink;
-                            snack(context, 'Link Updated', info: true);
-                            pop(context);
-                          }
-                        } catch (e) {
-                          snack(context, e.toString());
-                        }
-                        pop(context);
-                      },
-                      child: Text('Update'),
-                    ),
-                  ],
-                ));
-      },
-      child: Text('Update Link'),
+                    ));
+          },
+          child: Text('Update Link'),
+        ),
+      ],
     );
   }
 }

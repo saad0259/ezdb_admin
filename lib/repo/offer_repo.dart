@@ -1,34 +1,31 @@
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../model/offer_model.dart';
+import 'api_helper.dart';
 
 class OfferRepo {
   static final OfferRepo instance = OfferRepo();
-  final CollectionReference _offerCollection =
-      FirebaseFirestore.instance.collection('offers');
 
-  Future<void> updateOffer(String docId, String price, String days) async {
-    try {
-      await _offerCollection.doc(docId).update({
-        'price': price,
-        'days': days,
-      });
-    } catch (e) {
-      log(e.toString());
-      rethrow;
-    }
+  Future<void> updateOffer(OfferModel offerModel) async {
+    return executeSafely(() async {
+      final Request request =
+          Request('/offers/${offerModel.id}', offerModel.toMap());
+
+      final response = await request.patch(baseUrl);
+      log(response.data.toString());
+    });
   }
 
-  Stream<List<OfferModel>> watchOffers() {
-    return _offerCollection
-        .orderBy('createdAt', descending: false)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return OfferModel.fromMap(doc.id, doc.data() as Map<String, dynamic>);
-      }).toList();
+  Future<List<OfferModel>> getOffers() {
+    return executeSafely(() async {
+      final Request request = Request('/offers', null);
+      final response = await request.get(baseUrl);
+      log(response.data.toString());
+      final List<OfferModel> offers = [];
+      response.data.forEach((offer) {
+        offers.add(OfferModel.fromMap(offer));
+      });
+      return offers;
     });
   }
 }

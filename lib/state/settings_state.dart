@@ -34,10 +34,7 @@ class SettingsState extends ChangeNotifier {
       pricingLink = await SettingsRepo.instance.getLink();
       // pricingLink = '';
 
-      Stream<List<OfferModel>> offersStream = OfferRepo.instance.watchOffers();
-      offersStream.listen((offers) {
-        this.offers = offers;
-      });
+      this.offers = await OfferRepo.instance.getOffers();
     } catch (e) {
       log(e.toString());
     }

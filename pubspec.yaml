@@ -45,6 +45,8 @@ dependencies:
   syncfusion_flutter_pdf: ^20.4.53
   universal_html: ^2.2.1
   url_launcher: ^6.1.10
+  dio: ^5.3.0
+  file_picker: ^5.3.3
   
 dependency_overrides:
   intl: ^0.18.0

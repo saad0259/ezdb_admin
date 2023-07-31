@@ -5,7 +5,7 @@ class UserModel {
   final String phone;
   final bool isBlocked;
   final DateTime memberShipExpiry;
-  final DateTime memberShipStart;
+  final DateTime memberSince;
   final DateTime createdAt;
   final List<UserSearch> userSearch;
 
@@ -16,27 +16,26 @@ class UserModel {
     required this.phone,
     required this.isBlocked,
     required this.memberShipExpiry,
-    required this.memberShipStart,
+    required this.memberSince,
     required this.createdAt,
     required this.userSearch,
   });
 
-  UserModel.fromMap(
-      String id, Map<String, dynamic> map, List<UserSearch> userSearchData)
-      : id = id,
+  UserModel.fromMap(Map<String, dynamic> map, List<UserSearch> userSearchData)
+      : id = map['id'].toString(),
         name = map['name'] ?? '',
         email = map['email'] ?? '',
-        phone = map['phone'] ?? '',
+        phone = map['phone'].toString(),
         isBlocked = map['isBlocked'] ?? false,
-        memberShipExpiry = map['memberShipExpiry'] == null
+        memberShipExpiry = map['membershipExpiry'] == null
             ? DateTime.now()
-            : map['memberShipExpiry'].toDate(),
-        memberShipStart = map['memberShipStart'] == null
+            : DateTime.parse(map['membershipExpiry'].toString()),
+        memberSince = map['memberSince'] == null
             ? DateTime.now()
-            : map['memberShipStart'].toDate(),
+            : DateTime.parse(map['memberSince']),
         createdAt = map['createdAt'] == null
             ? DateTime.now()
-            : map['createdAt'].toDate(),
+            : DateTime.parse(map['createdAt'].toString()),
         userSearch = userSearchData;
 }
 
@@ -64,6 +63,6 @@ class UserSearch {
         offset = map['offset'].toString(),
         createdAt = map['createdAt'] == null
             ? DateTime.now()
-            : map['createdAt'].toDate(),
-        userId = map['userId'] ?? '';
+            : DateTime.parse(map['createdAt'].toString()),
+        userId = map['userId'].toString();
 }

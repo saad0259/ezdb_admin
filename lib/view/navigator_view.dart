@@ -5,7 +5,10 @@ import 'package:provider/provider.dart';
 import '../contants/app_images.dart';
 import '../model/navigator_model.dart';
 import '../state/navigator_state.dart';
+import '../state/settings_state.dart';
 import '../state/theme_state.dart';
+import '../state/user_state.dart';
+import '../util/snippet.dart';
 import '../view/responsive/extended_media_query.dart';
 import '../view/responsive/responsive_layout.dart';
 import 'dashboard/admin_dashboard_view.dart';
@@ -58,6 +61,25 @@ class _NavigatorViewState extends State<NavigatorView> {
                       ),
                       elevation: 2,
                       actions: [
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          onPressed: () async {
+                            final UserState userState =
+                                Provider.of<UserState>(context, listen: false);
+                            final SettingsState settingsState =
+                                Provider.of<SettingsState>(context,
+                                    listen: false);
+                            userState.isLoading = true;
+                            try {
+                              await userState.loadUserdata();
+                              await settingsState.loadData();
+                            } catch (e) {
+                              snack(context, e.toString());
+                            }
+                            userState.isLoading = false;
+                          },
+                          icon: const Icon(Icons.refresh),
+                        ),
                         Consumer<ThemeState>(
                           builder: (context, themeState, child) {
                             return IconButton(

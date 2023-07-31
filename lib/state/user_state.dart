@@ -42,7 +42,7 @@ class UserState extends ChangeNotifier {
     return _adminDashboardModel;
   }
 
-  DashboardFilter _currentFilter = DashboardFilter.thisWeek;
+  DashboardFilter _currentFilter = DashboardFilter.max;
   DashboardFilter get currentFilter => _currentFilter;
   set currentFilter(DashboardFilter filter) {
     _currentFilter = filter;
@@ -92,7 +92,9 @@ class UserState extends ChangeNotifier {
     filteredList = filteredList
         .where((element) =>
             element.createdAt.isAfter(startDate) &&
-            element.createdAt.isBefore(endDate) &&
+            element.createdAt.isBefore(
+              endDate.add(const Duration(days: 1)),
+            ) &&
             (element.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
                 element.phone.toString().contains(searchQuery) ||
                 element.email.toString().contains(searchQuery)))
@@ -131,12 +133,11 @@ class UserState extends ChangeNotifier {
   }
 
   Future<void> loadUserdata() async {
-    final Stream<List<UserModel>> stream = AuthRepo().watchUsers();
-    final List<UserModel> list = await stream.first;
+    final List<UserModel> list = await AuthRepo().getUsers();
     this.userList = list;
-    stream.listen((event) {
-      this.userList = event;
-    });
+    // stream.listen((event) {
+    //   this.userList = event;
+    // });
   }
 
   UserModel getUserById(String id) {

@@ -2,13 +2,14 @@ import 'package:flutter/cupertino.dart';
 
 import '../model/navigator_model.dart';
 import '../view/dashboard/admin_dashboard_view.dart';
+import '../view/settings/settings_view.dart';
 
 class NavState extends ChangeNotifier {
   static final defaultNav = NavigatorModel(
-    'Dashboard',
-    const AdminDashboardView(),
-    // 'Settings',
-    // const SettingsView(),
+    // 'Dashboard',
+    // const AdminDashboardView(),
+    'Settings',
+    const SettingsView(),
   );
 
   NavigatorModel active = defaultNav;

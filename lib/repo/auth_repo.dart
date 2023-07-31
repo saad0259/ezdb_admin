@@ -1,16 +1,15 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:typed_data';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../model/enum/dashboard_filter_enum.dart';
 import '../model/users_model.dart';
+import 'api_helper.dart';
 
 class AuthRepo {
   static final instance = AuthRepo();
-  final CollectionReference _usersCollection =
-      FirebaseFirestore.instance.collection('users');
 
   Future<UserCredential> login(String email, String password) async {
     return await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -63,85 +62,74 @@ class AuthRepo {
   //   return errorMessage;
   // }
 
-  Future<List<UserModel>> getUsersByFilter(DashboardFilter filter) async {
-    final List<UserModel> userList = [];
-    try {
-      final users = await _usersCollection
-          .where(
-            'createdAt',
-            isGreaterThanOrEqualTo: filter.startAt,
-            isLessThanOrEqualTo: filter.endAt,
-          )
-          .orderBy('createdAt', descending: true)
-          .get();
+  Future<List<UserModel>> getUsers() async {
+    return executeSafely(() async {
+      final Request request = Request('/users', null);
+      final response = await request.get(baseUrl);
+      if (response.statusCode == 200) {
+        final List<UserModel> userList = [];
+        final List<dynamic> users = response.data;
 
-      for (var userDoc in users.docs) {
-        //make a map of users and there ids to later use in mappping
-        final Map<String, dynamic> userData =
-            userDoc.data() as Map<String, dynamic>;
+        final searchesResponse =
+            await Request('/users/searches', null).get(baseUrl);
 
-        final userSearchSnapshot =
-            await userDoc.reference.collection('userSearch').get();
+        if (searchesResponse.statusCode == 200) {
+          final List<dynamic> searches = searchesResponse.data;
 
-        final userSearchData = userSearchSnapshot.docs
-            .map((e) => UserSearch.fromMap(e.data()))
-            .where((element) => element.createdAt.isAfter(filter.startAt))
-            .where((element) => element.createdAt.isBefore(filter.endAt))
-            .toList();
-        userSearchData.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          for (var user in users) {
+            final List<UserSearch> userSearchList = [];
 
-        userList.add(UserModel.fromMap(userDoc.id, userData, userSearchData));
+            for (var search in searches) {
+              if (search['userId'] == user['id']) {
+                userSearchList.add(UserSearch.fromMap(search));
+              }
+            }
+
+            userList.add(UserModel.fromMap(user, userSearchList));
+          }
+        } else {
+          throw Exception(searchesResponse.data);
+        }
+
+        return userList;
+      } else {
+        throw Exception(response.data['message']);
       }
-    } catch (e) {
-      print('------- getUsers() error: $e');
-    }
-    return userList;
+    });
   }
 
-  Stream<List<UserModel>> watchUsers() {
-    return _usersCollection
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .asyncMap((users) async {
-      final List<UserModel> userList = [];
+  Future<void> addRecords(Uint8List file) async {
+    return executeSafely(() async {
+      FormData formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(
+          file,
+          filename: 'records.xlsx',
+        ),
+      });
 
-      for (var userDoc in users.docs) {
-        final Map<String, dynamic> userData =
-            userDoc.data() as Map<String, dynamic>;
-
-        final userSearchSnapshot =
-            await userDoc.reference.collection('userSearch').get();
-
-        final userSearchData = userSearchSnapshot.docs
-            .map((e) => UserSearch.fromMap(e.data()))
-            .toList();
-        userSearchData.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-        userList.add(UserModel.fromMap(userDoc.id, userData, userSearchData));
+      final Request request = Request('/records', formData);
+      final response = await request.post(baseUrl);
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        log('error here : ${response.data}');
+        throw Exception(response.data['message']);
       }
-
-      return userList;
     });
   }
 
   Future<void> updateMembershipExpiryDate(
       String userId, DateTime expiryDate) async {
-    try {
-      await _usersCollection.doc(userId).update({
-        'memberShipExpiry': expiryDate,
+    return executeSafely(() async {
+      final Request request = Request('/users/$userId/membership', {
+        'membershipExpiry': expiryDate.toIso8601String(),
       });
-    } catch (e) {
-      log('------- updateMembershipExpiryDate() error: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> updateBlockStatus(String userId, bool isBlocked) async {
-    try {
-      await _usersCollection.doc(userId).update({'isBlocked': isBlocked});
-    } catch (e) {
-      log('------- updateBlockStatus() error: $e');
-      rethrow;
-    }
+      final response = await request.patch(baseUrl);
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception(response.data['message']);
+      }
+    });
   }
 }
