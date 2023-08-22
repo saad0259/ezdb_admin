@@ -9,6 +9,7 @@ import '../repo/auth_repo.dart';
 import '../state/navigator_state.dart';
 import '../util/snippet.dart';
 import 'navigator_view.dart';
+import 'privacy_policy.dart';
 import 'splash_view.dart';
 
 final routeBuilder = RoutesLocationBuilder(
@@ -16,7 +17,12 @@ final routeBuilder = RoutesLocationBuilder(
     '/': (context, state, data) => const BeamPage(
         key: ValueKey('Home'),
         title: 'Mega Admin',
-        child: NavigatorViewWidget())
+        child: NavigatorViewWidget()),
+    '/privacy-policy': (context, state, data) => const BeamPage(
+          key: ValueKey('Privacy Policy'),
+          title: 'Privacy Policy',
+          child: PivacyPolicy(),
+        ),
   },
 );
 

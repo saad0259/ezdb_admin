@@ -206,40 +206,39 @@ class ActionButtons extends StatelessWidget {
 
     return Row(
       children: [
-        ElevatedButton(
-          onPressed: () async {
-            final SettingsState state =
-                Provider.of<SettingsState>(context, listen: false);
-            try {
-              getStickyLoader(context);
+        // ElevatedButton(
+        //   onPressed: () async {
+        //     final SettingsState state =
+        //         Provider.of<SettingsState>(context, listen: false);
+        //     try {
+        //       getStickyLoader(context);
 
-              final FilePickerResult? result =
-                  await FilePicker.platform.pickFiles(
-                type: FileType.custom,
-                allowedExtensions: ['xlsx'],
-                allowMultiple: false,
-              );
-              if (result == null) {
-                snack(context, 'No file selected');
-                return;
-              }
+        //       final FilePickerResult? result =
+        //           await FilePicker.platform.pickFiles(
+        //         type: FileType.custom,
+        //         allowedExtensions: ['xlsx'],
+        //         allowMultiple: false,
+        //       );
+        //       if (result == null) {
+        //         snack(context, 'No file selected');
+        //         pop(context);
+        //         return;
+        //       }
 
-              Uint8List file = result.files.first.bytes ?? Uint8List(0);
+        //       Uint8List file = result.files.first.bytes ?? Uint8List(0);
 
-              
+        //       await AuthRepo.instance.addRecords(file);
 
-              await AuthRepo.instance.addRecords(file);
-
-              snack(context, 'Records Imported', info: true);
-            } catch (e) {
-              snack(context, 'Error Importing Records');
-              print(e);
-            }
-            pop(context);
-          },
-          child: Text('Import records'),
-        ),
-        const SizedBox(width: 16),
+        //       snack(context, 'Records Imported', info: true);
+        //     } catch (e) {
+        //       snack(context, 'Error Importing Records');
+        //       print(e);
+        //     }
+        //     pop(context);
+        //   },
+        //   child: Text('Import records'),
+        // ),
+        // const SizedBox(width: 16),
         ElevatedButton(
           onPressed: () {
             showDialog(

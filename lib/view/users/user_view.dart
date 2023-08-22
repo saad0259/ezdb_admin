@@ -162,7 +162,7 @@ class DataSource extends DataGridSource {
   List<DataGridCell> getCells(UserSearch model) => [
         DataGridCell<String>(
             columnName: '',
-            value: DateFormat('MMM-dd-yy hh:mma').format(model.createdAt)),
+            value: DateFormat('dd-MM-yyyy hh:mma').format(model.createdAt)),
         DataGridCell<String>(columnName: '', value: model.searchValue),
         DataGridCell<String>(columnName: '', value: model.searchType),
       ];

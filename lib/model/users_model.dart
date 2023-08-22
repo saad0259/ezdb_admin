@@ -8,6 +8,7 @@ class UserModel {
   final DateTime memberSince;
   final DateTime createdAt;
   final List<UserSearch> userSearch;
+  final bool isVerified;
 
   UserModel({
     required this.id,
@@ -19,6 +20,7 @@ class UserModel {
     required this.memberSince,
     required this.createdAt,
     required this.userSearch,
+    required this.isVerified,
   });
 
   UserModel.fromMap(Map<String, dynamic> map, List<UserSearch> userSearchData)
@@ -33,6 +35,7 @@ class UserModel {
         memberSince = map['memberSince'] == null
             ? DateTime.now()
             : DateTime.parse(map['memberSince']),
+        isVerified = map['isVerified'] ?? false,
         createdAt = map['createdAt'] == null
             ? DateTime.now()
             : DateTime.parse(map['createdAt'].toString()),

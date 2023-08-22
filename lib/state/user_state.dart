@@ -113,7 +113,7 @@ class UserState extends ChangeNotifier {
   }
 
   set userList(List<UserModel> list) {
-    _userList = list;
+    _userList = list.where((element) => element.isVerified).toList();
     notifyListeners();
   }
 

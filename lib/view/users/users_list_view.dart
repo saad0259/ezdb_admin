@@ -91,7 +91,7 @@ class DataSource extends DataGridSource {
         DataGridCell<String>(
             columnName: '',
             value:
-                DateFormat('MMM-dd-yy hh:mma').format(model.memberShipExpiry)),
+                DateFormat('dd-MM-yyyy hh:mma').format(model.memberShipExpiry)),
         // DataGridCell<String>(columnName: '', value: model.name),
         DataGridCell<String>(columnName: '', value: model.phone),
         // DataGridCell<String>(columnName: '', value: model.email),
@@ -141,7 +141,7 @@ class DataSource extends DataGridSource {
                             child: Text(
                               userState.selectedDate == null
                                   ? 'Pick Date'
-                                  : DateFormat('MMM-dd-yy')
+                                  : DateFormat('dd-MM-yyyy')
                                       .format(userState.selectedDate!),
                             ),
                           );

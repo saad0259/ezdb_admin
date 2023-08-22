@@ -1,9 +1,13 @@
+import 'dart:typed_data';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../contants/app_images.dart';
 import '../model/navigator_model.dart';
+import '../repo/auth_repo.dart';
 import '../state/navigator_state.dart';
 import '../state/settings_state.dart';
 import '../state/theme_state.dart';
@@ -152,6 +156,10 @@ class _NavigatorViewState extends State<NavigatorView> {
               ),
             ),
             NavButton(
+                title: "Import Records",
+                icon: Icons.upload_file_outlined,
+                onTap: importRecords),
+            NavButton(
               title: 'Logout',
               icon: Icons.exit_to_app_outlined,
               onTap: () async {
@@ -165,6 +173,33 @@ class _NavigatorViewState extends State<NavigatorView> {
         ),
       ),
     );
+  }
+
+  Future<void> importRecords() async {
+    try {
+      getStickyLoader(context);
+
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['xlsx'],
+        allowMultiple: false,
+      );
+      if (result == null) {
+        snack(context, 'No file selected');
+        pop(context);
+        return;
+      }
+
+      Uint8List file = result.files.first.bytes ?? Uint8List(0);
+
+      await AuthRepo.instance.addRecords(file);
+
+      snack(context, 'Records Imported', info: true);
+    } catch (e) {
+      snack(context, 'Error Importing Records');
+      print(e);
+    }
+    pop(context);
   }
 }
 
