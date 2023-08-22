@@ -15,6 +15,7 @@ import '../state/user_state.dart';
 import '../util/snippet.dart';
 import '../view/responsive/extended_media_query.dart';
 import '../view/responsive/responsive_layout.dart';
+import 'admins/admin_list_screen.dart';
 import 'dashboard/admin_dashboard_view.dart';
 import 'settings/settings_view.dart';
 import 'users/users_list_view.dart';
@@ -146,6 +147,13 @@ class _NavigatorViewState extends State<NavigatorView> {
               icon: Icons.receipt,
               onTap: () => navState.activate(
                 NavigatorModel("Users", const UsersListView()),
+              ),
+            ),
+            NavButton(
+              title: "Admins",
+              icon: Icons.receipt,
+              onTap: () => navState.activate(
+                NavigatorModel("Admins", const AdminListScreen()),
               ),
             ),
             NavButton(
