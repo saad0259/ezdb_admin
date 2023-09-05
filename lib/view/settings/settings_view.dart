@@ -1,13 +1,11 @@
-import 'dart:typed_data';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/offer_model.dart';
-import '../../repo/auth_repo.dart';
+import '../../repo/admins_repo.dart';
 import '../../repo/offer_repo.dart';
 import '../../repo/settings_repo.dart';
+import '../../state/auth_state.dart';
 import '../../state/settings_state.dart';
 import '../../util/snippet.dart';
 
@@ -112,79 +110,133 @@ class OfferCard extends StatelessWidget {
             '${offer.days} Days',
             style: theme.textTheme.titleSmall,
           ),
-          trailing: IconButton(
-            onPressed: () async {
-              String newPrice = '';
-              String newDays = '';
-              showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                        title: Text('Update Offer'),
-                        content: Form(
-                          key: formKey,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              TextFormField(
-                                initialValue: offer.price,
-                                validator: mandatoryValidator,
-                                onSaved: (value) => newPrice = value ?? '',
-                                decoration: InputDecoration(
-                                  labelText: 'Price',
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              TextFormField(
-                                initialValue: offer.days,
-                                validator: mandatoryValidator,
-                                onSaved: (value) => newDays = value ?? '',
-                                decoration: InputDecoration(
-                                  labelText: 'Days',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => pop(context),
-                            child: Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () async {
-                              try {
-                                if (formKey.currentState?.validate() ?? false) {
-                                  formKey.currentState?.save();
-                                  getStickyLoader(context);
-                                  final OfferModel newOffer = OfferModel(
-                                    id: offer.id,
-                                    name: offer.name,
-                                    price: newPrice,
-                                    days: newDays,
-                                  );
-                                  await OfferRepo.instance
-                                      .updateOffer(newOffer);
-                                  final SettingsState state =
-                                      Provider.of<SettingsState>(context,
-                                          listen: false);
-                                  state.loadData();
-                                  snack(context, 'Offer Updated', info: true);
-                                }
-                              } catch (e) {
-                                snack(context, 'Error Updating Offer');
-                                print(e);
-                              }
-                              pop(context);
-                              pop(context);
-                            },
-                            child: Text('Update'),
-                          ),
-                        ],
-                      ));
-            },
-            icon: Icon(Icons.edit),
-            tooltip: 'Edit',
-          ),
+          trailing: Consumer<AuthState>(builder: (context, authState, _) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                authState.admin?.role != 'admin'
+                    ? const SizedBox()
+                    : IconButton(
+                        onPressed: () async {
+                          String newPrice = '';
+                          String newDays = '';
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: Text('Update Offer'),
+                                    content: Form(
+                                      key: formKey,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          TextFormField(
+                                            initialValue: offer.price,
+                                            validator: mandatoryValidator,
+                                            onSaved: (value) =>
+                                                newPrice = value ?? '',
+                                            decoration: InputDecoration(
+                                              labelText: 'Price',
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          TextFormField(
+                                            initialValue: offer.days,
+                                            validator: mandatoryValidator,
+                                            onSaved: (value) =>
+                                                newDays = value ?? '',
+                                            decoration: InputDecoration(
+                                              labelText: 'Days',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => pop(context),
+                                        child: Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          try {
+                                            if (formKey.currentState
+                                                    ?.validate() ??
+                                                false) {
+                                              formKey.currentState?.save();
+                                              getStickyLoader(context);
+                                              final OfferModel newOffer =
+                                                  OfferModel(
+                                                id: offer.id,
+                                                name: offer.name,
+                                                price: newPrice,
+                                                days: newDays,
+                                                isActive: offer.isActive,
+                                              );
+                                              await OfferRepo.instance
+                                                  .updateOffer(newOffer);
+                                              final SettingsState state =
+                                                  Provider.of<SettingsState>(
+                                                      context,
+                                                      listen: false);
+                                              state.loadData();
+                                              snack(context, 'Offer Updated',
+                                                  info: true);
+                                            }
+                                          } catch (e) {
+                                            snack(context,
+                                                'Error Updating Offer');
+                                            print(e);
+                                          }
+                                          pop(context);
+                                          pop(context);
+                                        },
+                                        child: Text('Update'),
+                                      ),
+                                    ],
+                                  ));
+                        },
+                        icon: Icon(Icons.edit),
+                        tooltip: 'Edit',
+                      ),
+                // const SizedBox(height: 8),
+                Switch(
+                  value: offer.isActive,
+                  onChanged: authState.admin?.role != 'admin'
+                      ? null
+                      : (value) async {
+                          try {
+                            getStickyLoader(context);
+                            final OfferModel newOffer = OfferModel(
+                              id: offer.id,
+                              name: offer.name,
+                              price: offer.price,
+                              days: offer.days,
+                              isActive: value,
+                            );
+                            await OfferRepo.instance.updateOffer(newOffer);
+                            final SettingsState state =
+                                Provider.of<SettingsState>(context,
+                                    listen: false);
+
+                            final AuthState authState =
+                                Provider.of<AuthState>(context, listen: false);
+
+                            await AdminRepo.instance.addAdminLogs(
+                                authState.admin!.email,
+                                'Offer ${value ? 'activated' : 'deactivated'}');
+
+                            state.loadData();
+                            snack(context, 'Offer Updated', info: true);
+                          } catch (e) {
+                            snack(context, 'Error Updating Offer');
+                            print(e);
+                          }
+                          pop(context);
+                        },
+                ),
+              ],
+            );
+          }),
         ),
       ),
     );
@@ -198,7 +250,8 @@ class ActionButtons extends StatelessWidget {
   });
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  String pricingLink = '';
+  String whatsappLink = '';
+  String telegramLink = '';
 
   @override
   Widget build(BuildContext context) {
@@ -206,93 +259,85 @@ class ActionButtons extends StatelessWidget {
 
     return Row(
       children: [
-        // ElevatedButton(
-        //   onPressed: () async {
-        //     final SettingsState state =
-        //         Provider.of<SettingsState>(context, listen: false);
-        //     try {
-        //       getStickyLoader(context);
-
-        //       final FilePickerResult? result =
-        //           await FilePicker.platform.pickFiles(
-        //         type: FileType.custom,
-        //         allowedExtensions: ['xlsx'],
-        //         allowMultiple: false,
-        //       );
-        //       if (result == null) {
-        //         snack(context, 'No file selected');
-        //         pop(context);
-        //         return;
-        //       }
-
-        //       Uint8List file = result.files.first.bytes ?? Uint8List(0);
-
-        //       await AuthRepo.instance.addRecords(file);
-
-        //       snack(context, 'Records Imported', info: true);
-        //     } catch (e) {
-        //       snack(context, 'Error Importing Records');
-        //       print(e);
-        //     }
-        //     pop(context);
-        //   },
-        //   child: Text('Import records'),
-        // ),
-        // const SizedBox(width: 16),
-        ElevatedButton(
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                      title: Text('Update Contact Us Link'),
-                      content: Form(
-                        key: formKey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextFormField(
-                              initialValue: state.pricingLink,
-                              validator: mandatoryValidator,
-                              onSaved: (value) => pricingLink = value ?? '',
-                              decoration: InputDecoration(
-                                labelText: 'Link',
+        Consumer<AuthState>(builder: (context, authState, _) {
+          return ElevatedButton(
+            onPressed: authState.admin?.role != 'admin'
+                ? null
+                : () {
+                    showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                              title: Text('Update Contact Us Link'),
+                              content: Form(
+                                key: formKey,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    TextFormField(
+                                      initialValue: state.whatsappLink,
+                                      validator: mandatoryValidator,
+                                      onSaved: (value) =>
+                                          whatsappLink = value ?? '',
+                                      decoration: InputDecoration(
+                                        labelText: 'Whatsapp Link',
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    TextFormField(
+                                      initialValue: state.telegramLink,
+                                      validator: mandatoryValidator,
+                                      onSaved: (value) =>
+                                          telegramLink = value ?? '',
+                                      decoration: InputDecoration(
+                                        labelText: 'Telegram Link',
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => pop(context),
-                          child: Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            final SettingsState state =
-                                Provider.of<SettingsState>(context,
-                                    listen: false);
-                            try {
-                              getStickyLoader(context);
-                              if (formKey.currentState?.validate() ?? false) {
-                                formKey.currentState?.save();
-                                await SettingsRepo.instance
-                                    .updateLink(pricingLink);
-                                state.pricingLink = pricingLink;
-                                snack(context, 'Link Updated', info: true);
-                                pop(context);
-                              }
-                            } catch (e) {
-                              snack(context, e.toString());
-                            }
-                            pop(context);
-                          },
-                          child: Text('Update'),
-                        ),
-                      ],
-                    ));
-          },
-          child: Text('Update Link'),
-        ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => pop(context),
+                                  child: Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    final SettingsState state =
+                                        Provider.of<SettingsState>(context,
+                                            listen: false);
+                                    final AuthState authState =
+                                        Provider.of<AuthState>(context,
+                                            listen: false);
+
+                                    try {
+                                      getStickyLoader(context);
+                                      if (formKey.currentState?.validate() ??
+                                          false) {
+                                        formKey.currentState?.save();
+                                        await SettingsRepo.instance.updateLink(
+                                            whatsappLink, telegramLink);
+                                        await AdminRepo.instance.addAdminLogs(
+                                            authState.admin!.email,
+                                            'Contact Us Link updated');
+                                        state.whatsappLink = whatsappLink;
+                                        state.telegramLink = telegramLink;
+                                        snack(context, 'Link Updated',
+                                            info: true);
+                                        pop(context);
+                                      }
+                                    } catch (e) {
+                                      snack(context, e.toString());
+                                    }
+                                    pop(context);
+                                  },
+                                  child: Text('Update'),
+                                ),
+                              ],
+                            ));
+                  },
+            child: Text('Update Link'),
+          );
+        }),
       ],
     );
   }

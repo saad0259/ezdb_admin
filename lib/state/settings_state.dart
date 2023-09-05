@@ -7,10 +7,17 @@ import '../repo/offer_repo.dart';
 import '../repo/settings_repo.dart';
 
 class SettingsState extends ChangeNotifier {
-  String _pricingLink = '';
-  String get pricingLink => _pricingLink;
-  set pricingLink(String link) {
-    _pricingLink = link;
+  String _whatsappLink = '';
+  String get whatsappLink => _whatsappLink;
+  set whatsappLink(String link) {
+    _whatsappLink = link;
+    notifyListeners();
+  }
+
+  String _telegramLink = '';
+  String get telegramLink => _telegramLink;
+  set telegramLink(String link) {
+    _telegramLink = link;
     notifyListeners();
   }
 
@@ -31,7 +38,9 @@ class SettingsState extends ChangeNotifier {
   loadData() async {
     isLoading = true;
     try {
-      pricingLink = await SettingsRepo.instance.getLink();
+      final (String, String) links = await SettingsRepo.instance.getLink();
+      whatsappLink = links.$1;
+      telegramLink = links.$2;
       // pricingLink = '';
 
       this.offers = await OfferRepo.instance.getOffers();

@@ -9,6 +9,7 @@ class UserModel {
   final DateTime createdAt;
   final List<UserSearch> userSearch;
   final bool isVerified;
+  final String fcmToken;
 
   UserModel({
     required this.id,
@@ -21,6 +22,7 @@ class UserModel {
     required this.createdAt,
     required this.userSearch,
     required this.isVerified,
+    required this.fcmToken,
   });
 
   UserModel.fromMap(Map<String, dynamic> map, List<UserSearch> userSearchData)
@@ -39,7 +41,8 @@ class UserModel {
         createdAt = map['createdAt'] == null
             ? DateTime.now()
             : DateTime.parse(map['createdAt'].toString()),
-        userSearch = userSearchData;
+        userSearch = userSearchData,
+        fcmToken = map['fcmToken'] ?? '';
 }
 
 class UserSearch {

@@ -9,22 +9,18 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:universal_html/html.dart';
 
 import '../../model/admin_model.dart';
-import '../../model/navigator_model.dart';
-import '../../repo/admins_repo.dart';
 import '../../state/admin_state.dart';
-import '../../state/navigator_state.dart';
 import '../../util/sf_grid_helper.dart';
 import '../../util/snippet.dart';
-import 'admin_logs_screen.dart';
 
-class AdminListScreen extends StatefulWidget {
-  const AdminListScreen({Key? key}) : super(key: key);
+class AllAdminLogsScreen extends StatefulWidget {
+  const AllAdminLogsScreen({Key? key}) : super(key: key);
 
   @override
-  _AdminListScreenState createState() => _AdminListScreenState();
+  _AllAdminLogsScreenState createState() => _AllAdminLogsScreenState();
 }
 
-class _AdminListScreenState extends State<AdminListScreen> {
+class _AllAdminLogsScreenState extends State<AllAdminLogsScreen> {
   @override
   void initState() {
     super.initState();
@@ -39,7 +35,7 @@ class _AdminListScreenState extends State<AdminListScreen> {
         Provider.of<AdminState>(context, listen: false);
     if (adminState.admins.isEmpty) {
       // adminState.isLoading = true;
-      await adminState.loadData();
+      await adminState.loadAllLogs();
       // adminState.isLoading = false;
     }
   }
@@ -52,7 +48,7 @@ class _AdminListScreenState extends State<AdminListScreen> {
         : Padding(
             padding: const EdgeInsets.all(32.0),
             child: GetSFTableCard(
-              data: adminState.filteredAdmins,
+              data: adminState.allLogs,
             ),
           );
   }
@@ -67,8 +63,8 @@ class DataSource extends DataGridSource {
     buildDataGridRows();
   }
   final BuildContext context;
-  final List<AdminModel> data;
-  List<AdminModel> availableData = [];
+  final List<AdminLogs> data;
+  List<AdminLogs> availableData = [];
 
   List<DataGridRow> rowList = [];
   @override
@@ -90,7 +86,7 @@ class DataSource extends DataGridSource {
     );
   }
 
-  List<DataGridCell> getCells(AdminModel model) => [
+  List<DataGridCell> getCells(AdminLogs model) => [
         // DataGridCell<String>(
         //     columnName: '',
         //     value:
@@ -102,65 +98,11 @@ class DataSource extends DataGridSource {
             value: DateFormat('dd-MM-yyyy hh:mma').format(model.createdAt)),
         DataGridCell<String>(
           columnName: '',
-          value: model.isActive ? 'Active' : 'Blocked',
+          value: model.contents,
         ),
       ];
 
-  List<Widget> getActions(BuildContext context, AdminModel model) => [
-        Flexible(
-          child: IconButton(
-            icon: Icon(
-              model.isActive ? Icons.block : Icons.check,
-              color: Colors.grey,
-              size: 20,
-            ),
-            tooltip: model.isActive ? 'Block' : 'Unblock',
-            onPressed: () async {
-              try {
-                getStickyLoader(context);
-                await AdminRepo.instance
-                    .updateAdminActiveStatus(model.uid, !model.isActive);
-                snack(context, 'Status Updated', info: true);
-              } catch (e) {
-                snack(context, e.toString());
-              }
-              pop(context);
-            },
-            padding: EdgeInsets.zero,
-          ),
-        ),
-        Flexible(
-          child: IconButton(
-            icon: const Icon(Icons.delete, color: Colors.grey, size: 20),
-            tooltip: 'Delete',
-            onPressed: () async {
-              try {
-                getStickyLoader(context);
-                await AdminRepo.instance.deleteAdmin(model.uid);
-                snack(context, 'Admin Deleted', info: true);
-              } catch (e) {
-                snack(context, e.toString());
-              }
-              pop(context);
-            },
-          ),
-        ),
-        Flexible(
-          child: IconButton(
-            icon:
-                const Icon(Icons.view_list_sharp, color: Colors.grey, size: 20),
-            tooltip: 'View Logs',
-            onPressed: () async {
-              final NavState navState =
-                  Provider.of<NavState>(context, listen: false);
-              navState.activate(
-                NavigatorModel('Admins', AdminLogsView(uid: model.uid)),
-              );
-            },
-            padding: EdgeInsets.zero,
-          ),
-        ),
-      ];
+  List<Widget> getActions(BuildContext context, AdminLogs model) => [];
   @override
   Future<void> handleLoadMoreRows() async {
     await Future.delayed(const Duration(seconds: 1));
@@ -173,7 +115,7 @@ class DataSource extends DataGridSource {
   void buildDataGridRows() {
     int counter = 1;
     rowList.clear();
-    for (AdminModel model in availableData) {
+    for (AdminLogs model in availableData) {
       rowList.add(DataGridRow(cells: [
         DataGridCell<String>(columnName: '', value: (counter++).toString()),
         ...getCells(model),
@@ -187,7 +129,7 @@ class DataSource extends DataGridSource {
     }
   }
 
-  void _addMoreRows(List<AdminModel> newData, int count) {
+  void _addMoreRows(List<AdminLogs> newData, int count) {
     final startIndex = newData.isNotEmpty ? newData.length : 0,
         endIndex = (startIndex + count) >= data.length
             ? data.length
@@ -199,7 +141,7 @@ class DataSource extends DataGridSource {
   }
 }
 
-Future<void> buildPdf(BuildContext context, List<AdminModel> dataList) async {
+Future<void> buildPdf(BuildContext context, List<AdminLogs> dataList) async {
   try {
     if (dataList.isEmpty) {
       throw 'No data found';
@@ -225,7 +167,7 @@ Future<void> buildPdf(BuildContext context, List<AdminModel> dataList) async {
         PdfStandardFont(PdfFontFamily.helvetica, 10, style: PdfFontStyle.bold);
 // Add rows to the grid.
 
-    for (AdminModel item in dataList) {
+    for (AdminLogs item in dataList) {
       final PdfGridRow row = grid.rows.add();
       // row.cells[0].value = item.name;
       row.cells[0].value = item.email;
@@ -261,11 +203,11 @@ Future<void> buildPdf(BuildContext context, List<AdminModel> dataList) async {
 
 class GetSFTableCard extends StatelessWidget {
   GetSFTableCard({Key? key, required this.data}) : super(key: key);
-  final List<AdminModel> data;
+  final List<AdminLogs> data;
 
   final TextEditingController searchController = TextEditingController();
 
-  String get title => "Admins";
+  String get title => "Admin Logs";
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -298,53 +240,7 @@ class GetSFTableCard extends StatelessWidget {
               // ),
 
               const SizedBox(width: 18),
-              Row(
-                //
-                children: [
-                  //contrasting from and to elevated buttons
-
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      _showDatePicked(context, true);
-                    },
-                    icon: Consumer<AdminState>(
-                      builder: (context, adminState, child) {
-                        return Text(
-                            'To: ${DateFormat.yMMMd().format(adminState.startDate)}');
-                      },
-                    ),
-                    label: const Icon(
-                      Icons.arrow_drop_down,
-                      size: 20,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      backgroundColor: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 18),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      _showDatePicked(context, false);
-                    },
-                    icon: Consumer<AdminState>(
-                      builder: (context, adminState, child) {
-                        return Text(
-                            'To: ${DateFormat.yMMMd().format(adminState.endDate)}');
-                      },
-                    ),
-                    label: const Icon(
-                      Icons.arrow_drop_down,
-                      size: 20,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      backgroundColor: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 18),
+              // const SizedBox(width: 18),
               Expanded(
                 flex: 4,
                 child: TextField(
@@ -353,94 +249,13 @@ class GetSFTableCard extends StatelessWidget {
                     suffixIcon: const Icon(Icons.search),
                   ),
                   // controller: searchController,
-                  onChanged: (query) => adminState.searchQuery = query,
+                  onChanged: (query) => adminState.adminLogsSearchQuery = query,
                 ),
               ),
 
               const SizedBox(width: 18),
 
               //save pdf elevation icon button
-
-              SizedBox(
-                width: 140,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    String email = '';
-                    String password = '';
-                    await showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                              title: Text('Create Admin'),
-                              content: Form(
-                                key: formKey,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    TextFormField(
-                                      validator: emailValidator,
-                                      onSaved: (value) => email = value ?? '',
-                                      decoration: InputDecoration(
-                                        labelText: 'Email',
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    TextFormField(
-                                      validator: passwordValidator,
-                                      onSaved: (value) =>
-                                          password = value ?? '',
-                                      decoration: InputDecoration(
-                                        labelText: 'Password',
-                                      ),
-                                      obscureText: true,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => pop(context),
-                                  child: Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    log('pressed');
-
-                                    try {
-                                      if (formKey.currentState?.validate() ??
-                                          false) {
-                                        formKey.currentState?.save();
-                                        getStickyLoader(context);
-                                        await AdminRepo.instance
-                                            .createAdmin(email, password);
-                                        snack(context, 'Admin Created',
-                                            info: true);
-                                        pop(context);
-                                        pop(context);
-                                      }
-                                    } catch (e) {
-                                      snack(context, 'Something went wrong');
-                                      print(e);
-                                      pop(context);
-                                      pop(context);
-                                    }
-                                  },
-                                  child: Text('Update'),
-                                ),
-                              ],
-                            ));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  icon: const Icon(
-                    Icons.add,
-                    size: 20,
-                  ),
-                  label: Text('Add Admin'),
-                ),
-              ),
-
-              const SizedBox(width: 48),
             ]),
           ),
           Expanded(

@@ -8,6 +8,7 @@ import '../view/route_generator.dart';
 import 'app_theme.dart';
 import 'firebase_options.dart';
 import 'state/admin_state.dart';
+import 'state/auth_state.dart';
 import 'state/navigator_state.dart';
 import 'state/settings_state.dart';
 import 'state/theme_state.dart';
@@ -37,6 +38,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ThemeState()),
         ChangeNotifierProvider(create: (_) => SettingsState()),
         ChangeNotifierProvider(create: (_) => AdminState()),
+        ChangeNotifierProvider(create: (_) => AuthState()),
         // ChangeNotifierProvider(create: (_) => DashboardState()),
       ],
       child: Consumer<ThemeState>(

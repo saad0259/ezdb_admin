@@ -3,69 +3,89 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
+import '../../model/admin_model.dart';
 import '../../model/navigator_model.dart';
-import '../../model/users_model.dart';
+import '../../state/admin_state.dart';
 import '../../state/navigator_state.dart';
 import '../../state/theme_state.dart';
-import '../../state/user_state.dart';
 import '../../util/sf_grid_helper.dart';
+import '../../util/snippet.dart';
 import 'admin_list_screen.dart';
 
-class AdminLogsView extends StatelessWidget {
+class AdminLogsView extends StatefulWidget {
   const AdminLogsView({Key? key, required this.uid}) : super(key: key);
 
   final String uid;
 
   @override
+  State<AdminLogsView> createState() => _AdminLogsViewState();
+}
+
+class _AdminLogsViewState extends State<AdminLogsView> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final AdminState adminState =
+          Provider.of<AdminState>(context, listen: false);
+      await adminState.loadLogs(widget.uid);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(18.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: context.read<ThemeState>().darkTheme
-                        ? Colors.white
-                        : Theme.of(context).primaryColor,
+    final AdminState adminState = Provider.of<AdminState>(context);
+    return adminState.isLoading
+        ? shimmerTableEffect()
+        : Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.arrow_back,
+                          color: context.read<ThemeState>().darkTheme
+                              ? Colors.white
+                              : Theme.of(context).primaryColor,
+                        ),
+                        onPressed: () {
+                          final NavState navState =
+                              Provider.of<NavState>(context, listen: false);
+                          navState.activate(
+                            NavigatorModel('Admins', const AdminListScreen()),
+                          );
+                          navState.active.title = 'Admins';
+                        },
+                      ),
+                      const SizedBox(width: 20),
+                      Text(
+                        'Admin Logs',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: context.read<ThemeState>().darkTheme
+                              ? Colors.white
+                              : Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ],
                   ),
-                  onPressed: () {
-                    final NavState navState =
-                        Provider.of<NavState>(context, listen: false);
-                    navState.activate(
-                      NavigatorModel('Users', const AdminListScreen()),
-                    );
-                    navState.active.title = 'Users';
-                  },
-                ),
-                const SizedBox(width: 20),
-                Text(
-                  'User Details',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: context.read<ThemeState>().darkTheme
-                        ? Colors.white
-                        : Theme.of(context).primaryColor,
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: UserSearchListView(
+                      uid: widget.uid,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: UserSearchListView(
-                uid: uid,
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
+          );
   }
 }
 
@@ -76,8 +96,9 @@ class UserSearchListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final UserState userState = Provider.of<UserState>(context, listen: false);
-    final UserModel userData = userState.getUserById(uid);
+    final AdminState adminState =
+        Provider.of<AdminState>(context, listen: false);
+    final List<AdminLogs> logsData = adminState.logs.reversed.toList();
 
     return Card(
       elevation: 8,
@@ -88,7 +109,7 @@ class UserSearchListView extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Container(
           child: SfDataGrid(
-            source: DataSource(context: context, data: userData.userSearch),
+            source: DataSource(context: context, data: logsData),
             columns: <GridColumn>[
               getGridColumn(name: '#', width: ColumnWidthMode.fitByCellValue),
               ...getColumns(),
@@ -122,8 +143,7 @@ class UserSearchListView extends StatelessWidget {
 
   List<GridColumn> getColumns() => [
         getGridColumn(name: 'Created At'),
-        getGridColumn(name: 'Search Value'),
-        getGridColumn(name: 'Search Type'),
+        getGridColumn(name: 'Action'),
       ];
 }
 
@@ -136,8 +156,8 @@ class DataSource extends DataGridSource {
     buildDataGridRows();
   }
   final BuildContext context;
-  final List<UserSearch> data;
-  List<UserSearch> availableData = [];
+  final List<AdminLogs> data;
+  List<AdminLogs> availableData = [];
 
   List<DataGridRow> rowList = [];
   @override
@@ -159,12 +179,11 @@ class DataSource extends DataGridSource {
     );
   }
 
-  List<DataGridCell> getCells(UserSearch model) => [
+  List<DataGridCell> getCells(AdminLogs model) => [
         DataGridCell<String>(
             columnName: '',
             value: DateFormat('dd-MM-yyyy hh:mma').format(model.createdAt)),
-        DataGridCell<String>(columnName: '', value: model.searchValue),
-        DataGridCell<String>(columnName: '', value: model.searchType),
+        DataGridCell<String>(columnName: '', value: model.contents),
       ];
 
   @override
@@ -179,7 +198,7 @@ class DataSource extends DataGridSource {
   void buildDataGridRows() {
     int counter = 1;
     rowList.clear();
-    for (UserSearch model in availableData) {
+    for (AdminLogs model in availableData) {
       rowList.add(DataGridRow(cells: [
         DataGridCell<String>(columnName: '', value: (counter++).toString()),
         ...getCells(model)
@@ -187,7 +206,7 @@ class DataSource extends DataGridSource {
     }
   }
 
-  void _addMoreRows(List<UserSearch> newData, int count) {
+  void _addMoreRows(List<AdminLogs> newData, int count) {
     final startIndex = newData.isNotEmpty ? newData.length : 0,
         endIndex = (startIndex + count) >= data.length
             ? data.length

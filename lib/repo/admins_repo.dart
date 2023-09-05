@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mega_admin/repo/api_helper.dart';
 
 import '../model/admin_model.dart';
@@ -43,6 +44,55 @@ class AdminRepo {
     return await executeSafely(() async {
       final Request request = Request('$_adminsPath/$uid', {});
       await request.delete(baseUrl);
+      return;
+    });
+  }
+
+  Future<List<AdminLogs>> getIndividualAdminLogs(String uid) async {
+    return await executeSafely(() async {
+      final Request request = Request('$_adminsPath/logs/$uid', {});
+      final response = await request.get(baseUrl);
+      final List<AdminLogs> logs = [];
+      for (final log in response.data) {
+        logs.add(AdminLogs.fromMap(log));
+      }
+      return logs;
+    });
+  }
+
+  Future<List<AdminLogs>> getAllLogs() async {
+    return await executeSafely(() async {
+      final Request request = Request('$_adminsPath/logs', {});
+      final response = await request.get(baseUrl);
+      final List<AdminLogs> logs = [];
+      for (final log in response.data) {
+        logs.add(AdminLogs.fromMap(log));
+      }
+      return logs;
+    });
+  }
+
+  Future<void> addAdminLogs(String email, String content) async {
+    return await executeSafely(() async {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+      final Request request = Request('$_adminsPath/logs', {
+        'content': content,
+        'email': email,
+        'adminId': uid,
+      });
+      await request.post(baseUrl);
+      return;
+    });
+  }
+
+  Future<void> addUserLogs(String userId, String content) async {
+    return await executeSafely(() async {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+      final Request request = Request('/users/logs', {
+        'content': content,
+        'adminId': uid,
+      });
+      await request.post(baseUrl);
       return;
     });
   }

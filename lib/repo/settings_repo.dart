@@ -8,10 +8,11 @@ class SettingsRepo {
   final CollectionReference _settingsCollection =
       FirebaseFirestore.instance.collection('settings');
 
-  Future<void> updateLink(String link) async {
+  Future<void> updateLink(String whatsappLink, String telegramLink) async {
     try {
       await _settingsCollection.doc('pricingLink').update({
-        'link': link,
+        'whatsappLink': whatsappLink,
+        'telegramLink': telegramLink,
       });
     } catch (e) {
       log(e.toString());
@@ -19,12 +20,12 @@ class SettingsRepo {
     }
   }
 
-  Future<String> getLink() async {
+  Future<(String, String)> getLink() async {
     try {
       final doc = await _settingsCollection.doc('pricingLink').get();
       debugPrint('SettingsRepo.getLink: doc.data() = ${doc.data()}');
       final Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      return data['link'] ?? '';
+      return (data['whatsappLink'].toString(), data['telegramLink'].toString());
     } catch (e) {
       log(e.toString());
       rethrow;

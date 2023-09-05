@@ -14,7 +14,7 @@ class SplashView extends StatelessWidget {
         Positioned.fill(
           child: Image.asset(
             AppImages.logo,
-            fit: BoxFit.cover,
+            fit: BoxFit.contain,
           ),
         ),
         Container(color: Colors.black.withOpacity(0.7)),

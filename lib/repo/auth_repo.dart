@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../model/admin_model.dart';
 import '../model/users_model.dart';
 import 'api_helper.dart';
 
@@ -24,13 +26,24 @@ class AuthRepo {
     if (user != null) {
       final token = await user.getIdTokenResult();
       return token.claims!['role'] != null
-          ? token.claims!['role'] == 'admin'
+          ? token.claims!['role'] == 'admin' ||
+                  token.claims!['role'] == 'sub-admin'
               ? true
               : false
           : false;
     } else {
       return false;
     }
+  }
+
+  Stream<AdminModel> watchAdmin() {
+    final user = FirebaseAuth.instance.currentUser;
+    log('watchAdmin: ${user!.uid}');
+    return FirebaseFirestore.instance
+        .collection('admins')
+        .doc(user.uid)
+        .snapshots()
+        .map((event) => AdminModel.fromMap(event.id, event.data()!));
   }
 
   // String _getErrorMessage(String code) {
@@ -112,24 +125,53 @@ class AuthRepo {
       if (response.statusCode == 200) {
         return;
       } else {
-        log('error here : ${response.data}');
         throw Exception(response.data['message']);
       }
     });
   }
 
   Future<void> updateMembershipExpiryDate(
-      String userId, DateTime expiryDate) async {
+      String userId, String token, DateTime expiryDate) async {
     return executeSafely(() async {
       final Request request = Request('/users/$userId/membership', {
         'membershipExpiry': expiryDate.toIso8601String(),
       });
       final response = await request.patch(baseUrl);
+
       if (response.statusCode == 200) {
+        await notifyUser(
+          userId,
+          token,
+          'Membership Renewed',
+          'Your membership has been renewed till ${expiryDate.day}/${expiryDate.month}/${expiryDate.year}',
+        );
+
         return;
       } else {
         throw Exception(response.data['message']);
       }
+    });
+  }
+
+  Future<void> notifyUser(
+      String userId, String token, String title, String body) async {
+    return executeSafely(() async {
+      final Request request = Request('/users/$userId/notify', {
+        'token': token,
+        'title': title,
+        'body': body,
+      });
+      await request.post(baseUrl);
+    });
+  }
+
+  Future<void> deleteUser(String phone, String password) async {
+    return executeSafely(() async {
+      final Request request = Request('/users', {
+        'phone': phone,
+        'password': password,
+      });
+      await request.delete(baseUrl);
     });
   }
 }

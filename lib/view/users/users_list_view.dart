@@ -10,7 +10,9 @@ import 'package:universal_html/html.dart';
 
 import '../../model/navigator_model.dart';
 import '../../model/users_model.dart';
+import '../../repo/admins_repo.dart';
 import '../../repo/auth_repo.dart';
+import '../../state/auth_state.dart';
 import '../../state/navigator_state.dart';
 import '../../state/user_state.dart';
 import '../../util/sf_grid_helper.dart';
@@ -166,7 +168,14 @@ class DataSource extends DataGridSource {
                             getStickyLoader(context);
 
                             await AuthRepo.instance.updateMembershipExpiryDate(
-                                model.id, newExpiry);
+                                model.id, model.fcmToken, newExpiry);
+
+                            final AuthState authState =
+                                Provider.of<AuthState>(context, listen: false);
+
+                            await AdminRepo.instance.addAdminLogs(
+                                authState.admin!.email,
+                                'Upgraded membership for ${model.phone} to ${DateFormat('dd-MM-yyyy').format(newExpiry)}');
                             userState.isLoading = true;
                             await userState.loadUserdata();
                             userState.isLoading = false;
@@ -202,7 +211,7 @@ class DataSource extends DataGridSource {
               final NavState navState =
                   Provider.of<NavState>(context, listen: false);
               navState.activate(
-                NavigatorModel('Users', UserView(uid: model.id)),
+                NavigatorModel('Users', UserView(userModel: model)),
               );
             },
             padding: EdgeInsets.zero,

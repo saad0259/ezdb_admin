@@ -1,21 +1,21 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../repo/auth_repo.dart';
 import '../../util/snippet.dart';
 import '../../view/responsive/extended_media_query.dart';
 import '../../view/responsive/responsive_layout.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({Key? key}) : super(key: key);
+class DeleteUserScreen extends StatefulWidget {
+  const DeleteUserScreen({Key? key}) : super(key: key);
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<DeleteUserScreen> createState() => _DeleteUserScreenState();
 }
 
-class _LoginViewState extends State<LoginView> {
-  final email = TextEditingController();
+class _DeleteUserScreenState extends State<DeleteUserScreen> {
+  final phone = TextEditingController();
 
   final password = TextEditingController();
 
@@ -25,10 +25,6 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) {
-      email.text = 'abc@gmail.com';
-      password.text = 'Lahore123@';
-    }
     return ResponsiveHeightLayout(
       child: Scaffold(
         body: Stack(
@@ -88,18 +84,22 @@ class _LoginViewState extends State<LoginView> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Login',
+                      'Delete Account',
                       style: Theme.of(context).textTheme.headlineMedium,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 32),
                     TextFormField(
-                      validator: emailValidator,
+                      validator: mandatoryValidator,
                       decoration: const InputDecoration(
-                        hintText: 'Enter Email',
-                        prefixIcon: Icon(Icons.email),
+                        hintText: 'Enter Phone',
+                        prefixIcon: Icon(Icons.phone),
                       ),
-                      controller: email,
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      controller: phone,
                     ),
                     const SizedBox(height: 8),
                     TextFormField(
@@ -135,15 +135,18 @@ class _LoginViewState extends State<LoginView> {
     loadingNotifier.value = true;
     final validated = formKey.currentState?.validate() ?? false;
     if (validated) {
-      AuthRepo.instance.login(email.text, password.text).catchError((error) {
+      AuthRepo.instance
+          .deleteUser(phone.text, password.text)
+          .catchError((error) {
         loadingNotifier.value = false;
         if (error is FirebaseException) {
-          snack(context, "Login Failed");
+          snack(context, "Delete Failed");
         } else {
-          snack(context, "Login Failed");
+          snack(context, "Delete Failed");
         }
       }).then((value) {
         loadingNotifier.value = false;
+        snack(context, "Delete Success");
       });
     } else {
       loadingNotifier.value = false;

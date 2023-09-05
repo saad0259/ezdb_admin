@@ -30,3 +30,22 @@ class AdminModel {
     };
   }
 }
+
+class AdminLogs {
+  String contents;
+  DateTime createdAt;
+  final String email;
+
+  AdminLogs({
+    required this.contents,
+    required this.createdAt,
+    required this.email,
+  });
+
+  AdminLogs.fromMap(Map<String, dynamic> map)
+      : contents = map['contents'] ?? '',
+        createdAt = map['createdAt'] == null
+            ? DateTime.now()
+            : DateTime.parse(map['createdAt'] as String),
+        email = map['email'] ?? '';
+}

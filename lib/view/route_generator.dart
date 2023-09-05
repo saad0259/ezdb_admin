@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../auth/login_view.dart';
+import '../model/admin_model.dart';
 import '../repo/auth_repo.dart';
+import '../state/auth_state.dart';
 import '../state/navigator_state.dart';
-import '../util/snippet.dart';
+import 'delete_user/delete_user.dart';
 import 'navigator_view.dart';
 import 'privacy_policy.dart';
 import 'splash_view.dart';
@@ -18,6 +20,10 @@ final routeBuilder = RoutesLocationBuilder(
         key: ValueKey('Home'),
         title: 'Mega Admin',
         child: NavigatorViewWidget()),
+    '/removeAccount': (context, state, data) => const BeamPage(
+        key: ValueKey('DeleteUserScreen'),
+        title: 'Mega',
+        child: DeleteUserScreen()),
     '/privacy-policy': (context, state, data) => const BeamPage(
           key: ValueKey('Privacy Policy'),
           title: 'Privacy Policy',
@@ -42,26 +48,17 @@ class NavigatorViewWidget extends StatelessWidget {
         if (!userSnap.hasData) {
           return const LoginView();
         } else {
-          return FutureBuilder<bool>(
-              future: AuthRepo.instance.isAdmin(),
+          return StreamBuilder<AdminModel>(
+              stream: AuthRepo.instance.watchAdmin(),
               builder: (context, snapshot) {
-                if (snapshot.hasData &&
-                    snapshot.data != null &&
-                    snapshot.data!) {
+                if (snapshot.hasData) {
+                  final AuthState authState =
+                      Provider.of<AuthState>(context, listen: false);
+                  authState.admin = snapshot.data;
                   return ChangeNotifierProvider(
                     create: (_) => NavState(),
                     child: const NavigatorView(),
                   );
-                }
-                if (snapshot.hasData && !snapshot.data!) {
-                  FirebaseAuth.instance.signOut();
-                  snack(context, 'Invalid Credentials');
-                }
-                if (snapshot.hasData &&
-                    snapshot.data! &&
-                    !userSnap.data!.emailVerified) {
-                  FirebaseAuth.instance.signOut();
-                  snack(context, 'Email not verified');
                 }
 
                 return const SplashView();

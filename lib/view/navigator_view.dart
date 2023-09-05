@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mega_admin/state/auth_state.dart';
 import 'package:provider/provider.dart';
 
 import '../contants/app_images.dart';
@@ -15,6 +16,7 @@ import '../state/user_state.dart';
 import '../util/snippet.dart';
 import '../view/responsive/extended_media_query.dart';
 import '../view/responsive/responsive_layout.dart';
+import 'admin_logs/admin_list_screen.dart';
 import 'admins/admin_list_screen.dart';
 import 'dashboard/admin_dashboard_view.dart';
 import 'settings/settings_view.dart';
@@ -149,12 +151,32 @@ class _NavigatorViewState extends State<NavigatorView> {
                 NavigatorModel("Users", const UsersListView()),
               ),
             ),
-            NavButton(
-              title: "Admins",
-              icon: Icons.receipt,
-              onTap: () => navState.activate(
-                NavigatorModel("Admins", const AdminListScreen()),
-              ),
+            Consumer<AuthState>(
+              builder: (context, authState, child) {
+                return authState.admin?.role != 'admin'
+                    ? SizedBox()
+                    : NavButton(
+                        title: "Admin Logs",
+                        icon: Icons.receipt,
+                        onTap: () => navState.activate(
+                          NavigatorModel(
+                              "Admin Logs", const AllAdminLogsScreen()),
+                        ),
+                      );
+              },
+            ),
+            Consumer<AuthState>(
+              builder: (context, authState, child) {
+                return authState.admin?.role != 'admin'
+                    ? SizedBox()
+                    : NavButton(
+                        title: "Admins",
+                        icon: Icons.receipt,
+                        onTap: () => navState.activate(
+                          NavigatorModel("Admins", const AdminListScreen()),
+                        ),
+                      );
+              },
             ),
             NavButton(
               title: 'Settings',
@@ -163,10 +185,16 @@ class _NavigatorViewState extends State<NavigatorView> {
                 NavigatorModel('Settings', const SettingsView()),
               ),
             ),
-            NavButton(
-                title: "Import Records",
-                icon: Icons.upload_file_outlined,
-                onTap: importRecords),
+            Consumer<AuthState>(
+              builder: (context, authState, child) {
+                return authState.admin?.role != 'admin'
+                    ? SizedBox()
+                    : NavButton(
+                        title: "Import Records",
+                        icon: Icons.upload_file_outlined,
+                        onTap: importRecords);
+              },
+            ),
             NavButton(
               title: 'Logout',
               icon: Icons.exit_to_app_outlined,

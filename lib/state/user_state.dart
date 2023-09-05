@@ -49,7 +49,7 @@ class UserState extends ChangeNotifier {
     notifyListeners();
   }
 
-  DateTime _startDate = DateTime.now().subtract(const Duration(days: 7));
+  DateTime _startDate = DateTime.now().subtract(const Duration(days: 120));
   DateTime get startDate => _startDate;
   set startDate(DateTime date) {
     _startDate = date;

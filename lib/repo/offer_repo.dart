@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import '../model/offer_model.dart';
 import 'api_helper.dart';
 
@@ -11,8 +9,7 @@ class OfferRepo {
       final Request request =
           Request('/offers/${offerModel.id}', offerModel.toMap());
 
-      final response = await request.patch(baseUrl);
-      log(response.data.toString());
+      await request.patch(baseUrl);
     });
   }
 
@@ -20,7 +17,6 @@ class OfferRepo {
     return executeSafely(() async {
       final Request request = Request('/offers', null);
       final response = await request.get(baseUrl);
-      log(response.data.toString());
       final List<OfferModel> offers = [];
       response.data.forEach((offer) {
         offers.add(OfferModel.fromMap(offer));

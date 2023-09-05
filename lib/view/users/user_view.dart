@@ -5,16 +5,36 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../../model/navigator_model.dart';
 import '../../model/users_model.dart';
+import '../../repo/admins_repo.dart';
+import '../../state/auth_state.dart';
 import '../../state/navigator_state.dart';
 import '../../state/theme_state.dart';
 import '../../state/user_state.dart';
 import '../../util/sf_grid_helper.dart';
 import 'users_list_view.dart';
 
-class UserView extends StatelessWidget {
-  const UserView({Key? key, required this.uid}) : super(key: key);
+class UserView extends StatefulWidget {
+  const UserView({Key? key, required this.userModel}) : super(key: key);
 
-  final String uid;
+  final UserModel userModel;
+
+  @override
+  State<UserView> createState() => _UserViewState();
+}
+
+class _UserViewState extends State<UserView> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final AuthState authState =
+          Provider.of<AuthState>(context, listen: false);
+
+      AdminRepo.instance.addAdminLogs(authState.admin!.email,
+          'Looked up search details for ${widget.userModel.phone}');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +79,7 @@ class UserView extends StatelessWidget {
             const SizedBox(height: 20),
             Expanded(
               child: UserSearchListView(
-                uid: uid,
+                uid: widget.userModel.id,
               ),
             ),
           ],

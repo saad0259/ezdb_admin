@@ -85,16 +85,12 @@ Future<T> executeSafely<T>(Future<T> Function() function) async {
   try {
     return await function();
   } on DioException catch (e) {
-    // debugPrint(e.response?.data.toString());
     final String errorMessage =
         e.response?.data['message'] ?? 'Something went wrong. Please refresh.';
-    log('Error: $errorMessage');
-
     throw errorMessage;
   } catch (e) {
-    log('Error: $e');
     debugPrint(e.toString());
-    return await executeSafely(function);
-    // rethrow;
+    // return await executeSafely(function);
+    rethrow;
   }
 }
