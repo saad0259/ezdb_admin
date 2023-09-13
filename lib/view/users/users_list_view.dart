@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mega_admin/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
@@ -17,7 +18,6 @@ import '../../state/navigator_state.dart';
 import '../../state/user_state.dart';
 import '../../util/sf_grid_helper.dart';
 import '../../util/snippet.dart';
-import '../../view/responsive/extended_media_query.dart';
 import 'user_view.dart';
 
 class UsersListView extends StatefulWidget {
@@ -327,7 +327,6 @@ class GetSFTableCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final UserState userState = Provider.of<UserState>(context, listen: false);
-    final query = MediaQuery.of(context);
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(
@@ -345,9 +344,9 @@ class GetSFTableCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               Spacer(
-                flex: query.isTablet
+                flex: context.isTablet
                     ? 1
-                    : query.isLaptop
+                    : context.isLaptop
                         ? 2
                         : 4,
               ),

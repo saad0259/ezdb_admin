@@ -1,5 +1,5 @@
-import '../../view/responsive/extended_media_query.dart';
 import 'package:flutter/material.dart';
+import 'package:mega_admin/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PivacyPolicy extends StatefulWidget {
@@ -19,8 +19,7 @@ class _PayLinkViewState extends State<PivacyPolicy> {
             child: SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal:
-                      MediaQuery.of(context).getResponsiveHorizontalPadding(),
+                  horizontal: context.getResponsiveHorizontalPadding(),
                   vertical: 48,
                 ),
                 child: Column(

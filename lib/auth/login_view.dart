@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mega_admin/app_theme.dart';
 
 import '../../repo/auth_repo.dart';
 import '../../util/snippet.dart';
-import '../../view/responsive/extended_media_query.dart';
 import '../../view/responsive/responsive_layout.dart';
 
 class LoginView extends StatefulWidget {
@@ -49,8 +49,7 @@ class _LoginViewState extends State<LoginView> {
 
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal:
-                    MediaQuery.of(context).getResponsiveHorizontalPadding(),
+                horizontal: context.getResponsiveHorizontalPadding(),
                 vertical: 48,
               ),
               child: Column(
@@ -72,7 +71,7 @@ class _LoginViewState extends State<LoginView> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(
-          width: rTabletWidth / 2,
+          width: context.rTabletWidth / 2,
           child: Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),

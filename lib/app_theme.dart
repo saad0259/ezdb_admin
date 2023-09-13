@@ -108,3 +108,49 @@ ThemeData getTheme(ThemeState themeState) {
     // ),
   );
 }
+
+extension ContextExtensions on BuildContext {
+  TextTheme get textTheme => Theme.of(this).textTheme;
+
+  InputDecorationTheme get inputDecorationTheme =>
+      Theme.of(this).inputDecorationTheme;
+
+  ColorScheme get colorScheme => Theme.of(this).colorScheme;
+
+  ThemeData get theme => Theme.of(this);
+
+  double get height => MediaQuery.of(this).size.height;
+
+  double get width => MediaQuery.of(this).size.width;
+
+  double get statusBarHeight => MediaQuery.of(this).padding.top;
+
+  double get bottomBarHeight => MediaQuery.of(this).padding.bottom;
+
+  double get rTabletWidth => 800.0;
+  double get rLaptopWidth => 1024.0;
+  double get rLargeLaptopWidth => 1440.0;
+  double get rMinHeight => 720.0;
+
+  bool get isTablet => width < rLaptopWidth;
+
+  bool get isLaptop => width >= rLaptopWidth && width < rLargeLaptopWidth;
+
+  bool get isLargeLaptop => width >= rLargeLaptopWidth;
+
+  double getResponsiveHorizontalPadding() {
+    return isTablet
+        ? 16
+        : isLaptop
+            ? (rLaptopWidth - rTabletWidth) / 2
+            : (rLargeLaptopWidth - rLaptopWidth) / 2;
+  }
+
+  double getResponsiveWidth() {
+    return isTablet
+        ? rTabletWidth
+        : isLaptop
+            ? rLaptopWidth
+            : rLargeLaptopWidth;
+  }
+}

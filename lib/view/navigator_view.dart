@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:mega_admin/app_theme.dart';
 import 'package:mega_admin/state/auth_state.dart';
 import 'package:provider/provider.dart';
 
@@ -14,7 +15,6 @@ import '../state/settings_state.dart';
 import '../state/theme_state.dart';
 import '../state/user_state.dart';
 import '../util/snippet.dart';
-import '../view/responsive/extended_media_query.dart';
 import '../view/responsive/responsive_layout.dart';
 import 'admin_logs/admin_list_screen.dart';
 import 'admins/admin_list_screen.dart';
@@ -37,13 +37,11 @@ class _NavigatorViewState extends State<NavigatorView> {
 
   @override
   Widget build(BuildContext context) {
-    final query = MediaQuery.of(context);
-
     return ResponsiveHeightLayout(
       child: Scaffold(
         body: Row(
           children: [
-            if (!query.isTablet)
+            if (!context.isTablet)
               Card(
                 elevation: 0,
                 margin: const EdgeInsets.only(right: 1),
@@ -101,7 +99,7 @@ class _NavigatorViewState extends State<NavigatorView> {
                         ),
                       ],
                     ),
-                    drawer: query.isTablet
+                    drawer: context.isTablet
                         ? navState.canPop()
                             ? null
                             : getDrawer(context)

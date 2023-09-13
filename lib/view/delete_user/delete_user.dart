@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mega_admin/app_theme.dart';
 
 import '../../repo/auth_repo.dart';
 import '../../util/snippet.dart';
-import '../../view/responsive/extended_media_query.dart';
 import '../../view/responsive/responsive_layout.dart';
 
 class DeleteUserScreen extends StatefulWidget {
@@ -27,37 +27,38 @@ class _DeleteUserScreenState extends State<DeleteUserScreen> {
   Widget build(BuildContext context) {
     return ResponsiveHeightLayout(
       child: Scaffold(
-        body: Stack(
-          children: [
-            //gradient
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.grey.shade200,
-                    Colors.grey.shade400,
+        body: Container(
+          width: context.width,
+          child: Stack(
+            children: [
+              //gradient
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.grey.shade200,
+                      Colors.grey.shade400,
+                    ],
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.getResponsiveHorizontalPadding(),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    getLoginCard(context),
                   ],
                 ),
               ),
-            ),
-
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal:
-                    MediaQuery.of(context).getResponsiveHorizontalPadding(),
-                vertical: 48,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  getLoginCard(context),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -68,7 +69,7 @@ class _DeleteUserScreenState extends State<DeleteUserScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(
-          width: rTabletWidth / 2,
+          width: context.isTablet ? 400 : 600,
           child: Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
@@ -118,7 +119,7 @@ class _DeleteUserScreenState extends State<DeleteUserScreen> {
                           ? getLoader()
                           : ElevatedButton(
                               onPressed: () => loginAction(context),
-                              child: const Text('Login'),
+                              child: const Text('Delete'),
                             ),
                     ),
                   ],

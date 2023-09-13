@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mega_admin/app_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/admin_dashboard_model.dart';
@@ -6,7 +7,6 @@ import '../../model/chart_data_model.dart';
 import '../../model/enum/dashboard_filter_enum.dart';
 import '../../state/user_state.dart';
 import '../../util/snippet.dart';
-import '../../view/responsive/extended_media_query.dart';
 import 'dashboard_chart_view.dart';
 import 'filter_dropdown.dart';
 
@@ -81,12 +81,11 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   }
 
   Widget getCharts(BuildContext context, AdminDashboardModel? model) {
-    final media = MediaQuery.of(context);
     final UserState userState = Provider.of<UserState>(context, listen: false);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: getInRows(rows: media.isLargeLaptop ? 1 : 2, children: [
+      child: getInRows(rows: context.isLargeLaptop ? 1 : 2, children: [
         getTransactionsChart(
           'Users Per Day',
           model?.usersPerDay ?? [],
@@ -111,9 +110,8 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
 
   Widget getTopCards(
       BuildContext context, AdminDashboardModel? model, String filterName) {
-    final media = MediaQuery.of(context);
     return getInRows(
-      rows: media.isLargeLaptop ? 1 : 2,
+      rows: context.isLargeLaptop ? 1 : 2,
       children: [
         getStatCard(context,
             iconData: Icons.person,

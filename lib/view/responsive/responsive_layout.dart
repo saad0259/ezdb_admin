@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'extended_media_query.dart';
+import 'package:mega_admin/app_theme.dart';
 
 class ResponsiveHeightLayout extends StatelessWidget {
   final Widget child;
@@ -10,13 +9,12 @@ class ResponsiveHeightLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final query = MediaQuery.of(context);
-
-    final height = query.size.height;
-    final width = query.size.width;
-
-    final appliedHeight = height > rMinHeight ? height : rMinHeight;
-    final appliedWidth = width > rTabletWidth ? width : rTabletWidth;
+    final appliedHeight = context.height > context.rMinHeight
+        ? context.height
+        : context.rMinHeight;
+    final appliedWidth = context.width > context.rTabletWidth
+        ? context.width
+        : context.rTabletWidth;
     final ScrollController scrollController = ScrollController();
 
     return Scrollbar(
