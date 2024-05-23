@@ -4,19 +4,13 @@ import 'state/theme_state.dart';
 
 ThemeData getTheme(ThemeState themeState) {
   return ThemeData(
-    primarySwatch: const MaterialColor(0xffbf1e2e, <int, Color>{
-      50: Color(0xfffce4e5),
-      100: Color(0xfffcc2c4),
-      200: Color(0xfffa99a0),
-      300: Color(0xfff86c76),
-      400: Color(0xfff54e5c),
-      500: Color(0xffbf1e2e),
-      600: Color(0xffa31b2a),
-      700: Color(0xff871728),
-      800: Color(0xff6b1224),
-      900: Color(0xff4f0d1f),
-    }),
-    brightness: themeState.darkTheme ? Brightness.dark : Brightness.light,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: const Color(0xffff7518),
+      primary: const Color(0xffff7518),
+      brightness: themeState.darkTheme ? Brightness.dark : Brightness.light,
+    ),
+
+    useMaterial3: false,
     fontFamily: 'Montserrat',
     // scaffoldBackgroundColor: Colors.white,
     // appBarTheme: const AppBarTheme(

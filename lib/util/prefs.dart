@@ -1,4 +1,4 @@
-import '../preferences/prefs_helper.dart';
+import '../flutter-utils/prefs/prefs_helper.dart';
 
 Prefs get prefs {
   // Prefs._prefs;

@@ -8,13 +8,17 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:universal_html/html.dart';
 
+import '../../flutter-utils/snippets/dialogs.dart';
+import '../../flutter-utils/snippets/reusable_widgets.dart';
+import '../../flutter-utils/snippets/routing_helpers.dart';
+import '../../flutter-utils/snippets/shimmers_effects.dart';
+import '../../flutter-utils/snippets/validators.dart';
 import '../../model/admin_model.dart';
 import '../../model/navigator_model.dart';
 import '../../repo/admins_repo.dart';
 import '../../state/admin_state.dart';
 import '../../state/navigator_state.dart';
 import '../../util/sf_grid_helper.dart';
-import '../../util/snippet.dart';
 import 'admin_logs_screen.dart';
 
 class AdminListScreen extends StatefulWidget {
@@ -117,6 +121,9 @@ class DataSource extends DataGridSource {
             tooltip: model.isActive ? 'Block' : 'Unblock',
             onPressed: () async {
               try {
+                if (model.uid == AdminRepo.instance.uid) {
+                  throw 'You cannot delete yourself';
+                }
                 getStickyLoader(context);
                 await AdminRepo.instance
                     .updateAdminActiveStatus(model.uid, !model.isActive);
@@ -135,6 +142,9 @@ class DataSource extends DataGridSource {
             tooltip: 'Delete',
             onPressed: () async {
               try {
+                if (model.uid == AdminRepo.instance.uid) {
+                  throw 'You cannot delete yourself';
+                }
                 getStickyLoader(context);
                 await AdminRepo.instance.deleteAdmin(model.uid);
                 snack(context, 'Admin Deleted', info: true);
@@ -265,8 +275,6 @@ class GetSFTableCard extends StatelessWidget {
 
   final TextEditingController searchController = TextEditingController();
 
-  String get title => "Admins";
-
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
@@ -285,10 +293,6 @@ class GetSFTableCard extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 24.0) +
                 const EdgeInsets.only(top: 8.0),
             child: Row(children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
               // Spacer(
               //   flex: query.isTablet
               //       ? 1

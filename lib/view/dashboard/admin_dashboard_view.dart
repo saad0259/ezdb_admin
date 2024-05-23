@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:mega_admin/app_theme.dart';
+import 'package:ezdb_admin/app_theme.dart';
 import 'package:provider/provider.dart';
 
+import '../../flutter-utils/snippets/dialogs.dart';
+import '../../flutter-utils/snippets/reusable_widgets.dart';
+import '../../flutter-utils/snippets/shimmers_effects.dart';
 import '../../model/admin_dashboard_model.dart';
 import '../../model/chart_data_model.dart';
 import '../../model/enum/dashboard_filter_enum.dart';
 import '../../state/user_state.dart';
-import '../../util/snippet.dart';
 import 'dashboard_chart_view.dart';
 import 'filter_dropdown.dart';
 

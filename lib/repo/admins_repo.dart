@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mega_admin/repo/api_helper.dart';
+import 'package:ezdb_admin/repo/api_helper.dart';
 
 import '../model/admin_model.dart';
 
@@ -10,6 +10,8 @@ class AdminRepo {
   final String _adminCollection = 'admins';
 
   final String _adminsPath = '/admins';
+
+  final String uid = FirebaseAuth.instance.currentUser!.uid;
 
   Stream<List<AdminModel>> watchAdmins() {
     return FirebaseFirestore.instance

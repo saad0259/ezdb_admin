@@ -3,21 +3,23 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mega_admin/app_theme.dart';
-import 'package:mega_admin/state/auth_state.dart';
+import 'package:ezdb_admin/app_theme.dart';
+import 'package:ezdb_admin/state/auth_state.dart';
 import 'package:provider/provider.dart';
 
 import '../contants/app_images.dart';
+import '../flutter-utils/snippets/dialogs.dart';
+import '../flutter-utils/snippets/reusable_widgets.dart';
+import '../flutter-utils/snippets/routing_helpers.dart';
 import '../model/navigator_model.dart';
 import '../repo/auth_repo.dart';
 import '../state/navigator_state.dart';
 import '../state/settings_state.dart';
 import '../state/theme_state.dart';
 import '../state/user_state.dart';
-import '../util/snippet.dart';
 import '../view/responsive/responsive_layout.dart';
-import 'admin_logs/admin_list_screen.dart';
 import 'admins/admin_list_screen.dart';
+import 'allowed_users/allowed_users_screen.dart';
 import 'dashboard/admin_dashboard_view.dart';
 import 'settings/settings_view.dart';
 import 'users/users_list_view.dart';
@@ -143,26 +145,33 @@ class _NavigatorViewState extends State<NavigatorView> {
               ),
             ),
             NavButton(
+              title: "Allowed Users",
+              icon: Icons.receipt,
+              onTap: () => navState.activate(
+                NavigatorModel("Allowed Users", const AllowedUsersScreen()),
+              ),
+            ),
+            NavButton(
               title: "Users",
               icon: Icons.receipt,
               onTap: () => navState.activate(
                 NavigatorModel("Users", const UsersListView()),
               ),
             ),
-            Consumer<AuthState>(
-              builder: (context, authState, child) {
-                return authState.admin?.role != 'admin'
-                    ? SizedBox()
-                    : NavButton(
-                        title: "Admin Logs",
-                        icon: Icons.receipt,
-                        onTap: () => navState.activate(
-                          NavigatorModel(
-                              "Admin Logs", const AllAdminLogsScreen()),
-                        ),
-                      );
-              },
-            ),
+            // Consumer<AuthState>(
+            //   builder: (context, authState, child) {
+            //     return authState.admin?.role != 'admin'
+            //         ? SizedBox()
+            //         : NavButton(
+            //             title: "Admin Logs",
+            //             icon: Icons.receipt,
+            //             onTap: () => navState.activate(
+            //               NavigatorModel(
+            //                   "Admin Logs", const AllAdminLogsScreen()),
+            //             ),
+            //           );
+            //   },
+            // ),
             Consumer<AuthState>(
               builder: (context, authState, child) {
                 return authState.admin?.role != 'admin'

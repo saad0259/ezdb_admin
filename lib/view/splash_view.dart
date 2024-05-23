@@ -1,5 +1,5 @@
 import '../contants/app_images.dart';
-import '../util/snippet.dart';
+import '../flutter-utils/snippets/reusable_widgets.dart';
 import '../view/responsive/responsive_layout.dart';
 import 'package:flutter/material.dart';
 

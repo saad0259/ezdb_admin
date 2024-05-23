@@ -8,10 +8,11 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:universal_html/html.dart';
 
+import '../../flutter-utils/snippets/dialogs.dart';
+import '../../flutter-utils/snippets/shimmers_effects.dart';
 import '../../model/admin_model.dart';
 import '../../state/admin_state.dart';
 import '../../util/sf_grid_helper.dart';
-import '../../util/snippet.dart';
 
 class AllAdminLogsScreen extends StatefulWidget {
   const AllAdminLogsScreen({Key? key}) : super(key: key);

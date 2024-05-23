@@ -1,11 +1,13 @@
+import 'package:ezdb_admin/app_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mega_admin/app_theme.dart';
 
 import '../../repo/auth_repo.dart';
-import '../../util/snippet.dart';
 import '../../view/responsive/responsive_layout.dart';
+import '../flutter-utils/snippets/dialogs.dart';
+import '../flutter-utils/snippets/reusable_widgets.dart';
+import '../flutter-utils/snippets/validators.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -26,7 +28,8 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     if (kDebugMode) {
-      email.text = 'abc@gmail.com';
+      // email.text = 'aslam@gmail.com';
+      email.text = 'admin.ezdb@yopmail.com';
       password.text = 'Lahore123@';
     }
     return ResponsiveHeightLayout(

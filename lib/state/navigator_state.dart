@@ -7,8 +7,8 @@ class NavState extends ChangeNotifier {
   static final defaultNav = NavigatorModel(
     'Dashboard',
     const AdminDashboardView(),
-    // 'Settings',
-    // const SettingsView(),
+    // 'Allowed Users',
+    // const AllowedUsersScreen(),
     // 'Admin Logs',
     // const AllAdminLogsScreen(),
   );

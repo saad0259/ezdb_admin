@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:beamer/beamer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,11 +20,11 @@ final routeBuilder = RoutesLocationBuilder(
   routes: {
     '/': (context, state, data) => const BeamPage(
         key: ValueKey('Home'),
-        title: 'Mega Admin',
+        title: 'ezDB Admin',
         child: NavigatorViewWidget()),
     '/removeAccount': (context, state, data) => const BeamPage(
         key: ValueKey('DeleteUserScreen'),
-        title: 'Mega',
+        title: 'ezDB',
         child: DeleteUserScreen()),
     '/privacy-policy': (context, state, data) => const BeamPage(
           key: ValueKey('Privacy Policy'),
@@ -43,6 +45,7 @@ class NavigatorViewWidget extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, userSnap) {
         if (userSnap.connectionState == ConnectionState.waiting) {
+          log('waiting');
           return const SplashView();
         }
         if (!userSnap.hasData) {
@@ -59,8 +62,10 @@ class NavigatorViewWidget extends StatelessWidget {
                     create: (_) => NavState(),
                     child: const NavigatorView(),
                   );
+                } else if (snapshot.hasError) {
+                  log(snapshot.error.toString());
                 }
-
+                log('no data: waiting');
                 return const SplashView();
               });
         }

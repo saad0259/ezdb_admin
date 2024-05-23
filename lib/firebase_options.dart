@@ -53,12 +53,11 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDzlbsnYJZlITiUH9poONtM1ON9UD0J9VA',
-    appId: '1:181211131869:web:f09851d24be9e9abb65034',
-    messagingSenderId: '181211131869',
-    projectId: 'mega-app-1ea75',
-    authDomain: 'mega-app-1ea75.firebaseapp.com',
-    storageBucket: 'mega-app-1ea75.appspot.com',
-    measurementId: 'G-9D8T0XB6SJ',
-  );
+      apiKey: "AIzaSyB_wdjv_m_wo4zxyFX97g8_jpLJOhM3ong",
+      authDomain: "myapp-16523.firebaseapp.com",
+      projectId: "myapp-16523",
+      storageBucket: "myapp-16523.appspot.com",
+      messagingSenderId: "536114427156",
+      appId: "1:536114427156:web:df591b4f30923abcc53e01",
+      measurementId: "G-3YZJXJ4LLZ");
 }

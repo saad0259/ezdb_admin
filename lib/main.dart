@@ -8,6 +8,7 @@ import '../view/route_generator.dart';
 import 'app_theme.dart';
 import 'firebase_options.dart';
 import 'state/admin_state.dart';
+import 'state/allowed_users_state.dart';
 import 'state/auth_state.dart';
 import 'state/navigator_state.dart';
 import 'state/settings_state.dart';
@@ -39,6 +40,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SettingsState()),
         ChangeNotifierProvider(create: (_) => AdminState()),
         ChangeNotifierProvider(create: (_) => AuthState()),
+        ChangeNotifierProvider(create: (_) => AllowedUsersState()),
         // ChangeNotifierProvider(create: (_) => DashboardState()),
       ],
       child: Consumer<ThemeState>(
@@ -46,7 +48,7 @@ class App extends StatelessWidget {
           return Builder(
             builder: (context) => MaterialApp.router(
               scrollBehavior: MyCustomScrollBehavior(),
-              title: 'Mega Admin',
+              title: 'ezDB Admin',
               debugShowCheckedModeBanner: false,
               routerDelegate: routerDelegate,
               routeInformationParser: BeamerParser(),

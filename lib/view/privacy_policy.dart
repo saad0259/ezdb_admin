@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mega_admin/app_theme.dart';
+import 'package:ezdb_admin/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PivacyPolicy extends StatefulWidget {
@@ -79,13 +79,13 @@ class ContentWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '''Mega Search App built the Mega Search App app as a Free app. This SERVICE is provided by Mega Search App at no cost and is intended for use as is.
+                  '''ezDB Search App built the ezDB Search App app as a Free app. This SERVICE is provided by ezDB Search App at no cost and is intended for use as is.
 
 This page is used to inform visitors regarding our policies with the collection, use, and disclosure of Personal Information if anyone decided to use our Service.
 
 If you choose to use our Service, then you agree to the collection and use of information in relation to this policy. The Personal Information that we collect is used for providing and improving the Service. We will not use or share your information with anyone except as described in this Privacy Policy.
 
-The terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, which are accessible at Mega Search App unless otherwise defined in this Privacy Policy.''',
+The terms used in this Privacy Policy have the same meanings as in our Terms and Conditions, which are accessible at ezDB Search App unless otherwise defined in this Privacy Policy.''',
                   style: textStyle,
                 ),
                 const SizedBox(height: 16),
@@ -95,7 +95,7 @@ The terms used in this Privacy Policy have the same meanings as in our Terms and
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '''For a better experience, while using our Service, we may require you to provide us with certain personally identifiable information, including but not limited to Mega Search App. The information that we request will be retained by us and used as described in this privacy policy.
+                  '''For a better experience, while using our Service, we may require you to provide us with certain personally identifiable information, including but not limited to ezDB Search App. The information that we request will be retained by us and used as described in this privacy policy.
 
 The app does use third-party services that may collect information used to identify you.
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mega_admin/app_theme.dart';
+import 'package:ezdb_admin/app_theme.dart';
 
 class ResponsiveHeightLayout extends StatelessWidget {
   final Widget child;

@@ -3,21 +3,19 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mega_admin/app_theme.dart';
+import 'package:ezdb_admin/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:universal_html/html.dart';
 
+import '../../flutter-utils/snippets/dialogs.dart';
+import '../../flutter-utils/snippets/shimmers_effects.dart';
 import '../../model/navigator_model.dart';
 import '../../model/users_model.dart';
-import '../../repo/admins_repo.dart';
-import '../../repo/auth_repo.dart';
-import '../../state/auth_state.dart';
 import '../../state/navigator_state.dart';
 import '../../state/user_state.dart';
 import '../../util/sf_grid_helper.dart';
-import '../../util/snippet.dart';
 import 'user_view.dart';
 
 class UsersListView extends StatefulWidget {
@@ -90,119 +88,123 @@ class DataSource extends DataGridSource {
   }
 
   List<DataGridCell> getCells(UserModel model) => [
+        DataGridCell<String>(columnName: '', value: model.phone),
+        DataGridCell<String>(
+            columnName: '',
+            value: DateFormat('dd-MM-yyyy hh:mma').format(model.createdAt)),
+        // DataGridCell<String>(columnName: '', value: model.name),
         DataGridCell<String>(
             columnName: '',
             value:
                 DateFormat('dd-MM-yyyy hh:mma').format(model.memberShipExpiry)),
-        // DataGridCell<String>(columnName: '', value: model.name),
-        DataGridCell<String>(columnName: '', value: model.phone),
         // DataGridCell<String>(columnName: '', value: model.email),
       ];
 
   List<Widget> getActions(BuildContext context, UserModel model) => [
-        Flexible(
-          child: IconButton(
-            icon: const Icon(Icons.upgrade, color: Colors.grey, size: 20),
-            tooltip: 'Upgrade Membership',
-            onPressed: () async {
-              final int remainingDays = model.memberShipExpiry
-                  .difference(DateTime.parse(
-                    DateFormat('yyyy-MM-dd').format(DateTime.now()),
-                  ))
-                  .inDays;
-              await showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: Text('Upgrade Membership'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        remainingDays < 0
-                            ? 'Membership expired'
-                            : 'Remaining days in expiry: $remainingDays',
-                      ),
-                      SizedBox(height: 16),
+        // Flexible(
+        //   child: IconButton(
+        //     icon: const Icon(Icons.upgrade, color: Colors.grey, size: 20),
+        //     tooltip: 'Upgrade Membership',
+        //     onPressed: () async {
+        //       final int remainingDays = model.memberShipExpiry
+        //           .difference(DateTime.parse(
+        //             DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        //           ))
+        //           .inDays;
+        //       await showDialog(
+        //         context: context,
+        //         builder: (context) => AlertDialog(
+        //           title: Text('Upgrade Membership'),
+        //           content: Column(
+        //             mainAxisSize: MainAxisSize.min,
+        //             children: [
+        //               Text(
+        //                 remainingDays < 0
+        //                     ? 'Membership expired'
+        //                     : 'Remaining days in expiry: $remainingDays',
+        //               ),
+        //               SizedBox(height: 16),
 
-                      //button to pick date
-                      Consumer<UserState>(
-                        builder: (context, userState, child) {
-                          return TextButton(
-                            onPressed: () async {
-                              final DateTime? picked = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime.now(),
-                                lastDate:
-                                    DateTime.now().add(Duration(days: 365)),
-                              );
-                              if (picked != null) {
-                                userState.selectedDate = picked;
-                              }
-                            },
-                            child: Text(
-                              userState.selectedDate == null
-                                  ? 'Pick Date'
-                                  : DateFormat('dd-MM-yyyy')
-                                      .format(userState.selectedDate!),
-                            ),
-                          );
-                        },
-                      ),
+        //               //button to pick date
+        //               Consumer<UserState>(
+        //                 builder: (context, userState, child) {
+        //                   return TextButton(
+        //                     onPressed: () async {
+        //                       final DateTime? picked = await showDatePicker(
+        //                         context: context,
+        //                         initialDate: DateTime.now(),
+        //                         firstDate: DateTime.now(),
+        //                         lastDate:
+        //                             DateTime.now().add(Duration(days: 365)),
+        //                       );
+        //                       if (picked != null) {
+        //                         userState.selectedDate = picked;
+        //                       }
+        //                     },
+        //                     child: Text(
+        //                       userState.selectedDate == null
+        //                           ? 'Pick Date'
+        //                           : DateFormat('dd-MM-yyyy')
+        //                               .format(userState.selectedDate!),
+        //                     ),
+        //                   );
+        //                 },
+        //               ),
 
-                      SizedBox(height: 16),
+        //               // SizedBox(height: 16),
 
-                      ElevatedButton(
-                        onPressed: () async {
-                          final UserState userState =
-                              Provider.of<UserState>(context, listen: false);
+        //               // ElevatedButton(
+        //               //   onPressed: () async {
+        //               //     final UserState userState =
+        //               //         Provider.of<UserState>(context, listen: false);
 
-                          final DateTime? newExpiry = userState.selectedDate;
-                          if (newExpiry == null) {
-                            snack(context, 'Please pick a date');
-                            return;
-                          }
-                          getStickyLoader(context);
+        //               //     final DateTime? newExpiry = userState.selectedDate;
+        //               //     if (newExpiry == null) {
+        //               //       snack(context, 'Please pick a date');
+        //               //       return;
+        //               //     }
+        //               //     getStickyLoader(context);
 
-                          try {
-                            getStickyLoader(context);
+        //               //     try {
+        //               //       getStickyLoader(context);
 
-                            await AuthRepo.instance.updateMembershipExpiryDate(
-                                model.id, model.fcmToken, newExpiry);
+        //               //       await AuthRepo.instance.updateMembershipExpiryDate(
+        //               //           model.id, model.fcmToken, newExpiry);
 
-                            final AuthState authState =
-                                Provider.of<AuthState>(context, listen: false);
+        //               //       final AuthState authState =
+        //               //           Provider.of<AuthState>(context, listen: false);
 
-                            await AdminRepo.instance.addAdminLogs(
-                                authState.admin!.email,
-                                'Upgraded membership for ${model.phone} to ${DateFormat('dd-MM-yyyy').format(newExpiry)}');
-                            userState.isLoading = true;
-                            await userState.loadUserdata();
-                            userState.isLoading = false;
+        //               //       await AdminRepo.instance.addAdminLogs(
+        //               //           authState.admin!.email,
+        //               //           'Upgraded membership for ${model.phone} to ${DateFormat('dd-MM-yyyy').format(newExpiry)}');
+        //               //       userState.isLoading = true;
+        //               //       await userState.loadUserdata();
+        //               //       userState.isLoading = false;
 
-                            snack(context, 'Membership upgraded', info: true);
-                            pop(context);
-                            pop(context);
-                          } catch (e) {
-                            pop(context);
-                            pop(context);
-                            log(e.toString());
-                            snack(context, 'Error upgrading membership');
-                          }
-                          userState.selectedDate = null;
+        //               //       snack(context, 'Membership upgraded', info: true);
+        //               //       pop(context);
+        //               //       pop(context);
+        //               //     } catch (e) {
+        //               //       pop(context);
+        //               //       pop(context);
+        //               //       log(e.toString());
+        //               //       snack(context, 'Error upgrading membership');
+        //               //     }
+        //               //     userState.selectedDate = null;
 
-                          pop(context);
-                        },
-                        child: Text('Upgrade'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-            padding: EdgeInsets.zero,
-          ),
-        ),
+        //               //     pop(context);
+        //               //   },
+        //               //   child: Text('Upgrade'),
+        //               // ),
+        //             ],
+        //           ),
+        //         ),
+        //       );
+        //     },
+        //     padding: EdgeInsets.zero,
+        //   ),
+        // ),
+
         Flexible(
           child: IconButton(
             icon: const Icon(Icons.visibility, color: Colors.grey, size: 20),
@@ -234,12 +236,12 @@ class DataSource extends DataGridSource {
       rowList.add(DataGridRow(cells: [
         DataGridCell<String>(columnName: '', value: (counter++).toString()),
         ...getCells(model),
-        DataGridCell<Widget>(
-          columnName: '',
-          value: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: getActions(context, model)),
-        ),
+        // DataGridCell<Widget>(
+        //   columnName: '',
+        //   value: Row(
+        //       mainAxisAlignment: MainAxisAlignment.end,
+        //       children: getActions(context, model)),
+        // ),
       ]));
     }
   }
@@ -256,73 +258,11 @@ class DataSource extends DataGridSource {
   }
 }
 
-Future<void> buildPdf(BuildContext context, List<UserModel> dataList) async {
-  try {
-    if (dataList.isEmpty) {
-      throw 'No data found';
-    }
-    // Create a new PDF document.
-    final PdfDocument document = PdfDocument();
-// Add a new page to the document.
-    final PdfPage page = document.pages.add();
-// Create a PDF grid class to add tables.
-    final PdfGrid grid = PdfGrid();
-// Specify the grid column count.
-    grid.columns.add(count: 2);
-// Add a grid header row.
-    final PdfGridRow headerRow = grid.headers.add(1)[0];
-    // headerRow.cells[0].value = 'Name';
-    headerRow.cells[0].value = 'Phone';
-    // headerRow.cells[2].value = 'Email';
-    // headerRow.cells[3].value = 'Verified';
-    // headerRow.cells[4].value = 'Days Left';
-    headerRow.cells[1].value = 'Date';
-// Set header font.
-    headerRow.style.font =
-        PdfStandardFont(PdfFontFamily.helvetica, 10, style: PdfFontStyle.bold);
-// Add rows to the grid.
-
-    for (UserModel item in dataList) {
-      final PdfGridRow row = grid.rows.add();
-      // row.cells[0].value = item.name;
-      row.cells[0].value = item.phone;
-      // row.cells[2].value = item.email;
-      // row.cells[3].value = item.isVerified ? 'Yes' : 'No';
-      // row.cells[4].value = item.remainingDays;
-      row.cells[1].value =
-          DateFormat('h:mm a MM dd, yyyy').format(item.memberShipExpiry);
-    }
-
-// Set grid format.
-    grid.style.cellPadding = PdfPaddings(left: 5, top: 5);
-// Draw table in the PDF page.
-    grid.draw(
-        page: page,
-        bounds: Rect.fromLTWH(
-            0, 0, page.getClientSize().width, page.getClientSize().height));
-// Save the document.
-    final List<int> documentData = await document.save();
-    AnchorElement(
-        href:
-            "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(documentData)}")
-      ..setAttribute("download", "output.pdf")
-      ..click();
-
-    document.dispose();
-    snack(context, 'PDF Saved', info: true);
-  } catch (e) {
-    log(e.toString());
-    snack(context, e.toString());
-  }
-}
-
 class GetSFTableCard extends StatelessWidget {
   GetSFTableCard({Key? key, required this.data}) : super(key: key);
   final List<UserModel> data;
 
   final TextEditingController searchController = TextEditingController();
-
-  String get title => "Users";
 
   @override
   Widget build(BuildContext context) {
@@ -339,10 +279,6 @@ class GetSFTableCard extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 24.0) +
                 const EdgeInsets.only(top: 8.0),
             child: Row(children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
               Spacer(
                 flex: context.isTablet
                     ? 1
@@ -443,7 +379,7 @@ class GetSFTableCard extends StatelessWidget {
                   getGridColumn(
                       name: '#', width: ColumnWidthMode.fitByCellValue),
                   ...getColumns(),
-                  getGridColumn(name: 'Actions', align: Alignment.centerRight),
+                  // getGridColumn(name: 'Actions', align: Alignment.centerRight),
                 ],
                 loadMoreViewBuilder: loadMoreViewBuilderWidget,
               ),
@@ -496,9 +432,70 @@ class GetSFTableCard extends StatelessWidget {
   }
 
   List<GridColumn> getColumns() => [
-        getGridColumn(name: 'Expires At'),
-        // getGridColumn(name: 'Name'),
         getGridColumn(name: 'Phone'),
+        getGridColumn(name: 'Joined'),
+        // getGridColumn(name: 'Name'),
+        getGridColumn(name: 'Member Till'),
         // getGridColumn(name: 'Email'),
       ];
+}
+
+Future<void> buildPdf(BuildContext context, List<UserModel> dataList) async {
+  try {
+    if (dataList.isEmpty) {
+      throw 'No data found';
+    }
+    // Create a new PDF document.
+    final PdfDocument document = PdfDocument();
+// Add a new page to the document.
+    final PdfPage page = document.pages.add();
+// Create a PDF grid class to add tables.
+    final PdfGrid grid = PdfGrid();
+// Specify the grid column count.
+    grid.columns.add(count: 2);
+// Add a grid header row.
+    final PdfGridRow headerRow = grid.headers.add(1)[0];
+    // headerRow.cells[0].value = 'Name';
+    headerRow.cells[0].value = 'Phone';
+    // headerRow.cells[2].value = 'Email';
+    // headerRow.cells[3].value = 'Verified';
+    // headerRow.cells[4].value = 'Days Left';
+    headerRow.cells[1].value = 'Date';
+// Set header font.
+    headerRow.style.font =
+        PdfStandardFont(PdfFontFamily.helvetica, 10, style: PdfFontStyle.bold);
+// Add rows to the grid.
+
+    for (UserModel item in dataList) {
+      final PdfGridRow row = grid.rows.add();
+      // row.cells[0].value = item.name;
+      row.cells[0].value = item.phone;
+      // row.cells[2].value = item.email;
+      // row.cells[3].value = item.isVerified ? 'Yes' : 'No';
+      // row.cells[4].value = item.remainingDays;
+      row.cells[1].value =
+          DateFormat('h:mm a MM dd, yyyy').format(item.memberShipExpiry);
+    }
+
+// Set grid format.
+    grid.style.cellPadding = PdfPaddings(left: 5, top: 5);
+// Draw table in the PDF page.
+    grid.draw(
+        page: page,
+        bounds: Rect.fromLTWH(
+            0, 0, page.getClientSize().width, page.getClientSize().height));
+// Save the document.
+    final List<int> documentData = await document.save();
+    AnchorElement(
+        href:
+            "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(documentData)}")
+      ..setAttribute("download", "output.pdf")
+      ..click();
+
+    document.dispose();
+    snack(context, 'PDF Saved', info: true);
+  } catch (e) {
+    log(e.toString());
+    snack(context, e.toString());
+  }
 }

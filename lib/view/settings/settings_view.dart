@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../flutter-utils/snippets/dialogs.dart';
+import '../../flutter-utils/snippets/reusable_widgets.dart';
+import '../../flutter-utils/snippets/routing_helpers.dart';
+import '../../flutter-utils/snippets/shimmers_effects.dart';
+import '../../flutter-utils/snippets/validators.dart';
 import '../../model/offer_model.dart';
 import '../../repo/admins_repo.dart';
 import '../../repo/offer_repo.dart';
 import '../../repo/settings_repo.dart';
 import '../../state/auth_state.dart';
 import '../../state/settings_state.dart';
-import '../../util/snippet.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});

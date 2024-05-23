@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mega_admin/app_theme.dart';
+import 'package:ezdb_admin/app_theme.dart';
 
+import '../../flutter-utils/snippets/dialogs.dart';
+import '../../flutter-utils/snippets/reusable_widgets.dart';
+import '../../flutter-utils/snippets/validators.dart';
 import '../../repo/auth_repo.dart';
-import '../../util/snippet.dart';
 import '../../view/responsive/responsive_layout.dart';
 
 class DeleteUserScreen extends StatefulWidget {

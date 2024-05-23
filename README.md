@@ -1,2 +1,3 @@
-# mega_admin
-admin panel for mega app made for petertan343
+# ezDB_admin
+
+admin panel for ezDB app made for petertan343

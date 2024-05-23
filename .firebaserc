@@ -1,12 +1,12 @@
 {
   "projects": {
-    "default": "mega-app-1ea75"
+    "default": "myapp-16523"
   },
   "targets": {
-    "mega-app-1ea75": {
+    "myapp-16523": {
       "hosting": {
-        "mega-admin-01": [
-          "mega-admin-01"
+        "ezdb-admin": [
+          "ezdb-admin"
         ]
       }
     }

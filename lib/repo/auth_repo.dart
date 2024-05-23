@@ -43,7 +43,20 @@ class AuthRepo {
         .collection('admins')
         .doc(user.uid)
         .snapshots()
-        .map((event) => AdminModel.fromMap(event.id, event.data()!));
+        .map((event) {
+      log('watchAdmin: ${event.data()}');
+      return AdminModel.fromMap(event.id, event.data()!);
+    });
+  }
+
+  Future<void> addUserToAllowedList(String phone) async {
+    return await executeSafely(() async {
+      final response = await Request('/users/allow', {
+        'phone': phone,
+      }).post(baseUrl);
+
+      log(response.data['message']);
+    });
   }
 
   // String _getErrorMessage(String code) {

@@ -3,13 +3,13 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
+import '../../flutter-utils/snippets/shimmers_effects.dart';
 import '../../model/admin_model.dart';
 import '../../model/navigator_model.dart';
 import '../../state/admin_state.dart';
 import '../../state/navigator_state.dart';
 import '../../state/theme_state.dart';
 import '../../util/sf_grid_helper.dart';
-import '../../util/snippet.dart';
 import 'admin_list_screen.dart';
 
 class AdminLogsView extends StatefulWidget {
