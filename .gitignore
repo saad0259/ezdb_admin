@@ -20,5 +20,5 @@ doc/api/
 *.js.deps
 *.js.map
 
-
-.fvm/flutter_sdk
+# FVM Version Cache
+.fvm/
