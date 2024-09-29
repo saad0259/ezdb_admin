@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ezdb_admin/repo/api_helper.dart';
 
 import '../model/admin_model.dart';
+import 'repo_contants.dart';
 
 class AdminRepo {
   static final instance = AdminRepo();

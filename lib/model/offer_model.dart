@@ -5,6 +5,8 @@ class OfferModel {
   String days;
   bool isActive;
 
+  bool get isFree => price == '0';
+
   OfferModel({
     required this.id,
     required this.name,

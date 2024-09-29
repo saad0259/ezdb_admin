@@ -6,10 +6,6 @@ import 'package:flutter/foundation.dart';
 // * Dio Start
 enum Method { GET, POST, PATCH, DELETE }
 
-const String baseUrl = kDebugMode
-    ? 'http://localhost:5501/api/v1'
-    : 'https://5.9.88.108:5501/api/v1';
-
 class Request {
   final String _url;
   final dynamic _body;

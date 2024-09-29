@@ -1,5 +1,7 @@
 import 'package:ezdb_admin/repo/api_helper.dart';
 
+import 'repo_contants.dart';
+
 class AllowedUsersRepo {
   static final instance = AllowedUsersRepo();
 

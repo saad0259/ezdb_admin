@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../model/admin_model.dart';
 import '../model/users_model.dart';
 import 'api_helper.dart';
+import 'repo_contants.dart';
 
 class AuthRepo {
   static final instance = AuthRepo();

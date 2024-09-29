@@ -1,5 +1,6 @@
 import '../model/offer_model.dart';
 import 'api_helper.dart';
+import 'repo_contants.dart';
 
 class OfferRepo {
   static final OfferRepo instance = OfferRepo();

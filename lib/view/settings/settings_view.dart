@@ -107,7 +107,7 @@ class OfferCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
           title: Text(
-            '${offer.price} RM',
+            '${offer.price} RM ${offer.isFree ? '(Free Trial)' : ''}',
             style: theme.textTheme.headlineSmall,
           ),
           subtitle: Text(
@@ -133,15 +133,16 @@ class OfferCard extends StatelessWidget {
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          TextFormField(
-                                            initialValue: offer.price,
-                                            validator: mandatoryValidator,
-                                            onSaved: (value) =>
-                                                newPrice = value ?? '',
-                                            decoration: InputDecoration(
-                                              labelText: 'Price',
+                                          if (!offer.isFree)
+                                            TextFormField(
+                                              initialValue: offer.price,
+                                              validator: mandatoryValidator,
+                                              onSaved: (value) =>
+                                                  newPrice = value ?? '',
+                                              decoration: InputDecoration(
+                                                labelText: 'Price',
+                                              ),
                                             ),
-                                          ),
                                           const SizedBox(height: 16),
                                           TextFormField(
                                             initialValue: offer.days,
