@@ -107,7 +107,7 @@ class OfferCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
           title: Text(
-            '${offer.price} RM ${offer.isFree ? '(Free Trial)' : ''}',
+            '${offer.isFree ? 'Free Trial' : '${offer.price} RM'}',
             style: theme.textTheme.headlineSmall,
           ),
           subtitle: Text(
@@ -138,7 +138,7 @@ class OfferCard extends StatelessWidget {
                                               initialValue: offer.price,
                                               validator: mandatoryValidator,
                                               onSaved: (value) =>
-                                                  newPrice = value ?? '',
+                                                  newPrice = value ?? '0',
                                               decoration: InputDecoration(
                                                 labelText: 'Price',
                                               ),
@@ -173,7 +173,9 @@ class OfferCard extends StatelessWidget {
                                                   OfferModel(
                                                 id: offer.id,
                                                 name: offer.name,
-                                                price: newPrice,
+                                                price: newPrice.isEmpty
+                                                    ? offer.price
+                                                    : newPrice,
                                                 days: newDays,
                                                 isActive: offer.isActive,
                                               );

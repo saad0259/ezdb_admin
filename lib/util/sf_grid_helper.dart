@@ -34,7 +34,7 @@ Widget loadMoreViewBuilderWidget(
                 width: 142.0,
                 child: TextButton(
                     style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
+                        backgroundColor: WidgetStateProperty.all(
                             Theme.of(context).primaryColor)),
                     child: const Text('LOAD MORE',
                         style: TextStyle(color: Colors.white)),
